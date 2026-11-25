@@ -1,0 +1,1710 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c1512">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="U11 Draft">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+/* podstawowy reset (na claude.ai robi to otoczka strony) */
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{background:#0c1512}
+body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Ultimate 11 Draft</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: pasek portfela na górze, pod nim jeden widok naraz (menu, draft, skład, mecz, koniec). Boisko po lewej, panel po prawej, na telefonie jedno pod drugim. */
+:root{
+  --bg:#0c1512; --panel:#14211c; --panel2:#1b2c25; --line:#2b4237;
+  --fg:#eaf1ea; --mute:#8fa89a; --gold:#e9b949; --gold-ink:#2a1e00;
+  --pitch-a:#17603a; --pitch-b:#1a6a40; --chalk:rgba(234,241,234,.55);
+  --good:#58d68d; --bad:#ef6a5b; --mut:#ff6fb1;
+  --bronze-a:#c98a58; --bronze-b:#8a5532; --silver-a:#dfe5ea; --silver-b:#97a3ad;
+  --gold-a:#f4cf62; --gold-b:#b98a1d; --rare-a:#ffe38a; --rare-b:#2fb5a3;
+  --toty-a:#2f63ff; --toty-b:#0d1f6b; --icon-a:#fff6dc; --icon-b:#d9b66a;
+  --font-d:'Barlow Condensed','Arial Narrow',Impact,sans-serif; --font-b:'Barlow',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--font-b);padding-block:0 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,.slot:focus-visible,.card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+h1,h2,h3{font-family:var(--font-d);margin:0;text-transform:uppercase;letter-spacing:.04em;text-wrap:balance}
+.wrap{max-width:1040px;margin:0 auto}
+.top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:18px}
+.brand{font:800 26px/1 var(--font-d);letter-spacing:.06em;text-transform:uppercase}
+.brand b{background:var(--gold);color:var(--gold-ink);padding:0 7px;border-radius:3px;margin:0 4px}
+.wallet{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:600;font-size:13px;display:inline-flex;gap:6px;align-items:center}
+.pill b{font:700 17px/1 var(--font-d);color:var(--gold)}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 16px;font-weight:600}
+.btn:hover:not(:disabled){border-color:var(--gold)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.pri{background:var(--gold);color:var(--gold-ink);border-color:var(--gold);font:700 18px/1 var(--font-d);letter-spacing:.06em;text-transform:uppercase;padding:12px 22px}
+.btn.pri:hover:not(:disabled){filter:brightness(1.08)}
+.dot{display:inline-block;min-width:18px;height:18px;border-radius:9px;background:var(--mut);color:#2a0016;font:700 12px/18px var(--font-b);text-align:center;margin-left:6px;padding:0 5px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.mute{color:var(--mute)}
+.small{font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* menu */
+.hero{padding:10px 0 22px}
+.hero h1{font-size:clamp(40px,8vw,76px);line-height:.95;font-weight:800}
+.hero p{max-width:56ch;color:var(--mute);margin:12px 0 0}
+.forms{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px}
+.form{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.form:hover{border-color:var(--gold)}
+.form .nm{font:700 24px/1 var(--font-d);letter-spacing:.05em;margin-top:8px}
+.mini-pitch{position:relative;aspect-ratio:3/4;background:linear-gradient(var(--pitch-a),var(--pitch-b));border-radius:8px;border:1px solid var(--line)}
+.mini-pitch i{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--fg);transform:translate(-50%,-50%)}
+/* pitch */
+.pitch{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:7/9;border-radius:12px;border:2px solid var(--chalk);overflow:hidden;
+  background:repeating-linear-gradient(0deg,var(--pitch-a) 0 11.11%,var(--pitch-b) 11.11% 22.22%)}
+.pitch::before{content:"";position:absolute;left:50%;top:0;width:56%;height:16%;transform:translateX(-50%);border:2px solid var(--chalk);border-top:0}
+.pitch::after{content:"";position:absolute;left:50%;bottom:0;width:56%;height:16%;transform:translateX(-50%);border:2px solid var(--chalk);border-bottom:0}
+.pitch .mid{position:absolute;left:0;right:0;top:50%;border-top:2px solid var(--chalk)}
+.pitch .circ{position:absolute;left:50%;top:50%;width:22%;aspect-ratio:1;border:2px solid var(--chalk);border-radius:50%;transform:translate(-50%,-50%)}
+.slot{position:absolute;width:17%;transform:translate(-50%,-50%);background:none;border:0;padding:0;z-index:2}
+.slot.empty .ph{aspect-ratio:3/4;border:2px dashed var(--chalk);border-radius:8px;display:grid;place-items:center;font:700 14px var(--font-d);letter-spacing:.05em;background:rgba(0,0,0,.18)}
+.slot.ok .ph{border-color:var(--gold);color:var(--gold);background:rgba(233,185,73,.18);animation:pulse 1.1s ease-in-out infinite}
+.slot.sel .card{outline:2px solid var(--gold);outline-offset:2px}
+.slot .pen{position:absolute;top:-7px;right:-4px;background:var(--bad);color:#2b0500;font:700 11px/1 var(--font-b);padding:2px 4px;border-radius:4px;z-index:3}
+@keyframes pulse{50%{transform:scale(1.05)}}
+/* cards */
+.card{--a:var(--gold-a);--b:var(--gold-b);--ink:#2a1e00;position:relative;border-radius:10px;background:linear-gradient(155deg,var(--a),var(--b));color:var(--ink);padding:8px 8px 7px;text-align:left;display:block;width:100%;border:0;min-width:0;box-shadow:0 3px 10px rgba(0,0,0,.4)}
+.t-bronze{--a:var(--bronze-a);--b:var(--bronze-b);--ink:#2a1405}
+.t-silver{--a:var(--silver-a);--b:var(--silver-b);--ink:#1b2127}
+.t-gold{--a:var(--gold-a);--b:var(--gold-b);--ink:#2a1e00}
+.t-rare{--a:var(--rare-a);--b:var(--rare-b);--ink:#0b2a26}
+.t-toty{--a:var(--toty-a);--b:var(--toty-b);--ink:#f3d878}
+.t-icon{--a:var(--icon-a);--b:var(--icon-b);--ink:#3b2a05}
+.card .ovr{font:800 34px/.9 var(--font-d)}
+.card .cpos{font:700 14px/1 var(--font-d);letter-spacing:.06em;display:block;margin-top:3px}
+.card .nm{font:700 15px/1.05 var(--font-d);text-transform:uppercase;letter-spacing:.03em;margin-top:8px;min-height:2.1em;overflow-wrap:break-word}
+.card .meta{font-size:11px;font-weight:600;opacity:.8;margin-top:4px;display:flex;justify-content:space-between;gap:4px}
+.card .tier{position:absolute;top:8px;right:8px;font:700 10px/1 var(--font-d);letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.card .mut{display:block;margin-top:6px;background:var(--mut);color:#2a0016;font:700 11px/1 var(--font-b);padding:3px 5px;border-radius:4px;text-align:center}
+.card.mini{padding:4px 4px 3px;border-radius:6px}
+.card.mini .ovr{font-size:clamp(15px,3.6vw,22px)}
+.card.mini .cpos{font-size:10px;margin-top:1px}
+.card.mini .nm{font-size:clamp(8px,1.9vw,11px);margin-top:3px;min-height:0;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card.mini .tier,.card.mini .meta{display:none}
+.card.mini .mutdot{position:absolute;top:-4px;left:-4px;width:12px;height:12px;border-radius:50%;background:var(--mut);border:2px solid var(--bg)}
+.pack{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+@media(max-width:640px){.pack{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.pack3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media(max-width:820px){.gpitch{order:1}.gctl{order:2}}
+.pack{perspective:900px}
+.pack .card{cursor:pointer;transition:transform .15s;transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0px))}
+.pack.fresh .card{animation:flipc .62s var(--d,0s) backwards}
+.pack .card:nth-child(2){animation-delay:.07s}.pack .card:nth-child(3){animation-delay:.14s}.pack .card:nth-child(4){animation-delay:.21s}.pack .card:nth-child(5){animation-delay:.28s}
+.pack .card:hover{--ty:-4px}
+.pack .card.sel{outline:3px solid var(--fg);outline-offset:2px;--ty:-6px}
+@keyframes deal{from{opacity:0;transform:translateY(18px) rotateX(40deg)}to{opacity:1;transform:none}}
+.roll{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.roll .big{font:800 clamp(30px,6vw,46px)/1 var(--font-d);text-transform:uppercase;letter-spacing:.04em}
+.roll .big.yr{color:var(--gold)}
+.bar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin:8px 0 12px}
+.bar i{display:block;height:100%;background:var(--gold)}
+/* stats */
+.lines{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+.lines div{background:var(--panel2);border-radius:8px;padding:8px 6px;text-align:center}
+.lines b{display:block;font:700 26px/1 var(--font-d);font-variant-numeric:tabular-nums}
+.lines span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.chem{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chem span{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:13px}
+.chem span.on{border-color:var(--gold);color:var(--gold)}
+.stages{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.stages span{font:700 13px/1 var(--font-d);letter-spacing:.06em;text-transform:uppercase;padding:6px 9px;border-radius:6px;background:var(--panel2);color:var(--mute)}
+.stages span.now{background:var(--gold);color:var(--gold-ink)}
+.stages span.done{color:var(--good)}
+/* match */
+.score{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;text-align:center}
+.score .tm{font:700 clamp(18px,4vw,26px)/1.1 var(--font-d);text-transform:uppercase;letter-spacing:.04em;overflow-wrap:anywhere}
+.score .res{font:800 clamp(44px,10vw,76px)/1 var(--font-d);font-variant-numeric:tabular-nums}
+.clock{text-align:center;font:700 18px var(--font-d);color:var(--gold);letter-spacing:.1em;margin:4px 0}
+.log{max-height:300px;overflow:auto;margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.log div{display:flex;gap:10px;font-size:14px;padding:6px 8px;background:var(--panel2);border-radius:6px}
+.log .m{font:700 15px var(--font-d);color:var(--mute);min-width:34px}
+.log .g{background:rgba(88,214,141,.14);border-left:3px solid var(--good)}
+.log .ga{background:rgba(239,106,91,.14);border-left:3px solid var(--bad)}
+.banner{font:800 clamp(34px,7vw,60px)/1 var(--font-d);text-transform:uppercase;letter-spacing:.04em}
+.banner.win{color:var(--gold)}.banner.lose{color:var(--bad)}
+/* quests */
+.modal{position:fixed;inset:0;background:rgba(5,10,8,.8);z-index:50;display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding:max(16px,env(safe-area-inset-top,0px)) 16px 24px}
+.modal>div{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:640px;width:100%}
+.q{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.q h3{font-size:19px}
+.q .prog{grid-column:1/-1;height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.q .prog i{display:block;height:100%;background:var(--good)}
+.q.claimed{opacity:.5}
+.rw{font:700 15px var(--font-d);color:var(--gold);letter-spacing:.05em;white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--gold);color:var(--gold-ink);font-weight:600;padding:10px 18px;border-radius:8px;z-index:60;max-width:calc(100% - 32px)}
+
+.btn.on{border-color:var(--gold);color:var(--gold)}
+.btn.tact{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:130px}
+.ball{position:absolute;width:3.4%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#cfd6cf 60%,#8a948c);transform:translate(-50%,-50%);transition:left .38s ease-in-out,top .38s ease-in-out;z-index:5;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.slot.act .card{outline:3px solid #fff;transform:scale(1.18);transition:transform .15s}
+.gflash{position:absolute;inset:38% 0 auto 0;text-align:center;font:800 clamp(40px,12vw,80px)/1 var(--font-d);color:var(--gold);text-shadow:0 3px 14px rgba(0,0,0,.7);z-index:6;animation:pop .5s both;text-transform:uppercase}
+.gflash.bad{color:var(--bad)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.lineup{display:grid;gap:3px}
+.lineup div{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:8px;font-size:13px;padding:3px 6px;background:var(--panel2);border-radius:5px}
+.lineup div span:first-child{color:var(--mute);font:700 13px var(--font-d);letter-spacing:.05em}
+.lineup b{font:700 15px var(--font-d)}
+
+.t-wc{--a:#d6405a;--b:#43101f;--ink:#ffe9a8}
+.t-euro{--a:#3fc8da;--b:#0c3567;--ink:#ffffff}
+.card .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 4px;margin-top:6px;padding-top:5px;border-top:1px solid color-mix(in srgb,var(--ink) 30%,transparent);font-size:10px;font-weight:500}
+.card .stats b{font:700 13px var(--font-d)}
+.card .mut.dupb{background:#1c1c1c;color:#fff}
+.pack .card{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.selbox{margin-top:12px;padding:10px 12px;background:var(--panel2);border-radius:8px;border:1px solid var(--line)}
+.slot.hov .ph{background:rgba(233,185,73,.4);transform:scale(1.1)}
+.ghost{position:fixed;width:76px;pointer-events:none;z-index:90;transform:translate(-50%,-60%) rotate(-4deg);opacity:.96;left:-200px;top:-200px}
+.walk{position:fixed;inset:0;z-index:80;background:rgba(3,6,5,.93);display:grid;place-items:center;align-content:center;gap:18px;cursor:pointer;animation:fadein .3s both}
+.wo-glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(244,207,98,.45),transparent 55%);animation:glow 1.6s ease-out both}
+.wo-card{position:relative;width:min(230px,62vw);animation:rise 1.1s cubic-bezier(.2,.8,.2,1) both}
+.wo-card .card{box-shadow:0 0 60px rgba(244,207,98,.6)}
+.wo-txt{position:relative;text-align:center;font:700 22px/1.2 var(--font-d);text-transform:uppercase;letter-spacing:.12em;color:var(--gold);animation:fadein 1s .5s both}
+.wo-txt b{color:var(--fg);font-size:30px}
+@keyframes rise{from{transform:translateY(60px) scale(.6) rotateY(90deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes glow{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{background:var(--panel);border:0;border-right:1px solid var(--line);padding:8px 14px;font-weight:600}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--gold);color:var(--gold-ink)}
+.panel.daily{border-color:var(--gold);background:linear-gradient(120deg,var(--panel),var(--panel2))}
+.tbl{display:grid;gap:3px;margin:6px 0 12px}
+.tr{display:grid;grid-template-columns:24px minmax(0,1fr) 28px 54px 34px;gap:8px;align-items:center;padding:5px 8px;background:var(--panel2);border-radius:6px;font-size:13px;text-align:left}
+.tr.th{background:none;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.tr.me{outline:1px solid var(--gold);color:var(--gold)}
+.tr span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr b{font:700 16px var(--font-d);text-align:right;font-variant-numeric:tabular-nums}
+.ach{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.ach div{background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:3px;opacity:.5}
+.ach div.on{opacity:1;border:1px solid var(--gold)}
+.ach b{font:700 17px var(--font-d);letter-spacing:.04em;text-transform:uppercase}
+details.hd{border-top:1px solid var(--line);padding:10px 0}
+details.hd summary{cursor:pointer;font-size:14px}
+details.hd .lineup{margin-top:8px}
+
+/* ===== v5: wygląd, animacje, losowanie ===== */
+body{background:radial-gradient(900px 420px at 50% -140px,rgba(233,185,73,.13),transparent 65%),radial-gradient(600px 400px at 100% 30%,rgba(23,96,58,.18),transparent 70%),var(--bg);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.btn{transition:transform .12s,border-color .15s,background .15s,filter .15s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.035),transparent 40%),var(--panel);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+#app.enter>*{animation:viewin .45s cubic-bezier(.2,.8,.2,1) backwards}
+#app.enter>*:nth-child(2){animation-delay:.06s}#app.enter>*:nth-child(3){animation-delay:.12s}
+@keyframes viewin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.modal>div{animation:modalin .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes modalin{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.toast{animation:toastin .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translateX(-50%)}}
+/* karty */
+.card{box-shadow:inset 0 0 0 1px rgba(255,255,255,.3),0 4px 12px rgba(0,0,0,.45);overflow:hidden}
+.card:not(.mini)::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.09) 0 5px,transparent 5px 11px);pointer-events:none}
+.card:not(.mini)::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 46%,transparent 62%);background-size:260% 100%;background-position:160% 0;pointer-events:none;mix-blend-mode:soft-light;transition:background-position .7s;z-index:2}
+.card:not(.mini):hover::after{background-position:-60% 0}
+.card.t-icon:not(.mini){background:linear-gradient(120deg,#fff6dc,#e9c97e 30%,#fff6dc 50%,#d9b66a 70%,#fff6dc);background-size:300% 300%;animation:foil 5s linear infinite}
+.card.t-toty:not(.mini)::before{background:radial-gradient(circle at 20% 20%,rgba(244,216,120,.4) 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,rgba(244,216,120,.35) 0 2px,transparent 3px),radial-gradient(circle at 40% 85%,rgba(244,216,120,.3) 0 2px,transparent 3px),repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 5px,transparent 5px 11px)}
+@keyframes foil{to{background-position:300% 300%}}
+.pack.fresh .card.t-icon:not(.mini){animation:flipc .62s var(--d,0s) backwards,foil 5s linear infinite}
+.flag{display:inline-block;width:16px;height:11px;border-radius:2px;vertical-align:-1px;margin-right:4px;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.cb{display:none;position:absolute;inset:0;z-index:4;border-radius:inherit;pointer-events:none;background:repeating-linear-gradient(45deg,#14231c 0 8px,#1d3329 8px 16px);box-shadow:inset 0 0 0 3px var(--gold)}
+.cb::after{content:"11";position:absolute;inset:0;display:grid;place-items:center;font:800 40px var(--font-d);color:var(--gold);opacity:.8}
+.pack.fresh .card .cb{display:block;animation:cbgone .62s var(--d,0s) both}
+@keyframes flipc{0%{transform:perspective(700px) rotateY(0)}49.9%{transform:perspective(700px) rotateY(90deg)}50%{transform:perspective(700px) rotateY(-90deg)}100%{transform:perspective(700px) rotateY(0)}}
+@keyframes cbgone{0%,49.9%{opacity:1}50%,100%{opacity:0}}
+.pack.fresh .card.t-rare,.pack.fresh .card.t-toty,.pack.fresh .card.t-wc,.pack.fresh .card.t-euro,.pack.fresh .card.t-icon{--glow:rgba(244,207,98,.9)}
+.pack.fresh .card.t-rare::before,.pack.fresh .card.t-toty::before{}
+.glowring{position:absolute;inset:0;border-radius:inherit;pointer-events:none;animation:glowp 1s ease-out both}
+@keyframes glowp{0%{box-shadow:0 0 0 0 rgba(244,207,98,.95)}100%{box-shadow:0 0 0 26px rgba(244,207,98,0)}}
+/* rolki losowania */
+.reels{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:4px 0 6px}
+.reel{height:56px;overflow:hidden;border-radius:10px;background:var(--panel2);border:1px solid var(--line);box-shadow:inset 0 8px 14px rgba(0,0,0,.35),inset 0 -8px 14px rgba(0,0,0,.35);position:relative}
+.reel.rc{min-width:230px}.reel.ry{min-width:120px}
+.reel::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(12,21,18,.55),transparent 30%,transparent 70%,rgba(12,21,18,.55));pointer-events:none}
+.strip{will-change:transform}
+.strip .it{height:56px;display:flex;align-items:center;gap:10px;padding:0 16px;font:800 34px/1 var(--font-d);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.reel.ry .strip .it{color:var(--gold);justify-content:center;font-variant-numeric:tabular-nums}
+.strip .flag{width:30px;height:20px;border-radius:3px}
+/* boisko */
+.pitch{box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 0 70px rgba(0,0,0,.4);background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.10),transparent 60%),repeating-linear-gradient(0deg,var(--pitch-a) 0 11.11%,var(--pitch-b) 11.11% 22.22%)}
+.pb{position:absolute;left:50%;width:26%;height:7%;transform:translateX(-50%);border:2px solid var(--chalk)}
+.pbt{top:0;border-top:0}.pbb{bottom:0;border-bottom:0}
+.sp{position:absolute;left:50%;width:6px;height:6px;border-radius:50%;background:var(--chalk);transform:translate(-50%,-50%)}
+.spt{top:12%}.spb{top:88%}
+.arc{position:absolute;left:50%;width:18%;aspect-ratio:2/1;transform:translateX(-50%);border:2px solid var(--chalk)}
+.arct{top:15%;border-radius:0 0 999px 999px;border-top:0;height:9%;aspect-ratio:auto;clip-path:inset(0)}
+.arcb{bottom:15%;border-radius:999px 999px 0 0;border-bottom:0;height:9%;aspect-ratio:auto}
+.slot.new .card{animation:popin .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes popin{from{transform:scale(.3) translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+.slot .card{transition:transform .15s}
+.slot:hover .card{transform:translateY(-2px)}
+.vig{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;transition:opacity .25s}
+.vig.on{opacity:1}
+.vig.good{box-shadow:inset 0 0 90px rgba(233,185,73,.55)}
+.vig.bad{box-shadow:inset 0 0 90px rgba(239,106,91,.65)}
+.pitch.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.ball{background:radial-gradient(circle at 35% 30%,#fff 0 25%,#dfe5df 45%,#8e988f 100%);box-shadow:0 6px 8px rgba(0,0,0,.4)}
+/* tabela meczowa */
+.tv{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;background:linear-gradient(180deg,#0a120f,#101c17);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:10px}
+.tvt{display:flex;align-items:center;gap:10px;font:700 clamp(16px,3.4vw,24px)/1.1 var(--font-d);text-transform:uppercase;letter-spacing:.05em;min-width:0;overflow-wrap:anywhere}
+.tvt.r{justify-content:flex-end;text-align:right}
+.crest{width:26px;height:30px;background:var(--gold);clip-path:polygon(0 0,100% 0,100% 62%,50% 100%,0 62%);flex:none}
+.tvs{text-align:center}
+.tvs b{display:block;font:800 clamp(44px,10vw,72px)/.95 var(--font-d);font-variant-numeric:tabular-nums;letter-spacing:.04em;text-shadow:0 2px 16px rgba(233,185,73,.25)}
+.tvs b.bump{animation:bump .5s}
+@keyframes bump{40%{transform:scale(1.25);color:var(--gold)}}
+.tvs span{display:inline-block;background:var(--gold);color:var(--gold-ink);font:700 15px var(--font-d);letter-spacing:.1em;border-radius:99px;padding:2px 12px;margin-top:4px}
+.log div{animation:login .3s both}
+@keyframes login{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+/* statystyki liniowe */
+.lines div{position:relative;overflow:hidden}
+.lines .lb{position:absolute;left:0;bottom:0;height:3px;width:var(--w);background:linear-gradient(90deg,var(--gold),var(--good));border-radius:0 3px 0 0;transition:width .6s}
+/* menu */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:center}
+.hero h1{background:linear-gradient(180deg,#fff,#b9c9bf);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .fan{position:relative;height:330px}
+.fan .card{position:absolute;width:150px;top:20px;animation:floaty 5s ease-in-out infinite}
+.fan .f1{left:6%;transform:rotate(-12deg);animation-delay:-1s}
+.fan .f2{left:30%;top:0;transform:rotate(0deg);z-index:2;width:170px}
+.fan .f3{left:56%;transform:rotate(12deg);animation-delay:-2.5s}
+@keyframes floaty{50%{translate:0 -10px}}
+@media(max-width:820px){.hero{grid-template-columns:minmax(0,1fr)}.hero .fan{height:250px}.fan .card{width:112px}.fan .f2{width:128px}}
+.form{transition:transform .2s,border-color .15s,box-shadow .2s}
+.form:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,.35)}
+.form .mini-pitch i{transition:transform .25s}
+.form:hover .mini-pitch i{transform:translate(-50%,-50%) scale(1.5)}
+.panel.daily{position:relative;overflow:hidden}
+.panel.daily::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 40%,rgba(233,185,73,.12) 50%,transparent 60%);background-size:250% 100%;animation:sweep 5s linear infinite;pointer-events:none}
+@keyframes sweep{from{background-position:150% 0}to{background-position:-100% 0}}
+/* koniec */
+.trophy{display:block;margin:0 auto 6px;animation:trophy 1.2s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes trophy{from{transform:scale(.2) rotate(-25deg);opacity:0}to{transform:none;opacity:1}}
+.banner{animation:bannerin .7s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes bannerin{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
+.fastbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:520px){.pill{padding:4px 9px;font-size:12px}.pill b{font-size:15px}.brand{font-size:22px}}
+@media(max-width:520px){.top{position:static;backdrop-filter:none;-webkit-backdrop-filter:none}body::before{display:none}.tv{padding:10px;gap:6px}.tvt{font-size:13px;overflow-wrap:break-word;word-break:normal;hyphens:auto;gap:6px}.tvt .crest{display:none}.tvs b{font-size:42px}.top .btn{padding:6px 10px;font-size:13px}}
+/* ===== v7: menu główne ===== */
+.nav{display:contents}
+body[data-v=menu] .nav{display:none}
+body[data-v=menu] .top{margin-bottom:8px}
+.home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:36px;align-items:center;padding:14px 0 26px;min-height:calc(100vh - 150px)}
+.eyebrow{font:700 14px var(--font-d);letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.logo{font-size:clamp(44px,6vw,66px);line-height:.88;font-weight:800;background:linear-gradient(180deg,#fff 20%,#9db3a6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo b{display:inline-block;background:var(--gold);color:var(--gold-ink);-webkit-text-fill-color:var(--gold-ink);padding:0 .12em;border-radius:.08em;margin:0 .04em;transform:rotate(-3deg)}
+.tag{color:var(--mute);max-width:44ch;margin:10px 0 18px}
+.mnav{display:grid;gap:10px}
+.mbtn{position:relative;display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:10px 16px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(100deg,var(--panel2),var(--panel));color:var(--fg);transition:transform .18s,border-color .18s,box-shadow .18s,background .18s;animation:mrise .5s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i,0)*.08s + .1s)}
+.mbtn:hover{transform:translateX(8px);border-color:var(--gold);box-shadow:0 8px 24px rgba(0,0,0,.35),-4px 0 0 var(--gold)}
+.mbtn:active{transform:translateX(8px) scale(.99)}
+.mic{flex:none;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:rgba(233,185,73,.12);color:var(--gold);transition:transform .2s}
+.mbtn:hover .mic{transform:rotate(-8deg) scale(1.08)}
+.mtx{flex:1;min-width:0;display:flex;flex-direction:column}
+.mtx b{font:700 24px/1 var(--font-d);letter-spacing:.06em;text-transform:uppercase}
+.mtx small{color:var(--mute);font-size:13px;margin-top:3px}
+.chev{font:400 30px/1 var(--font-b);color:var(--mute);transition:transform .18s,color .18s}
+.mbtn:hover .chev{transform:translateX(4px);color:var(--gold)}
+.mbtn .dot{margin:0;flex:none}
+.mbtn.start{padding:16px 20px;background:linear-gradient(100deg,#f4cf62,#e9b949 55%,#d39d2a);color:var(--gold-ink);border-color:#f4d878;overflow:hidden}
+.mbtn.start .mic{background:rgba(42,30,0,.14);color:var(--gold-ink);width:54px;height:54px}
+.mbtn.start .mtx b{font-size:36px}
+.mbtn.start .mtx small,.mbtn.start .chev{color:rgba(42,30,0,.7)}
+.mbtn.start::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);background-size:260% 100%;animation:sweep 3.6s linear infinite;pointer-events:none;mix-blend-mode:soft-light}
+@keyframes mrise{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+.mlinks{margin:12px 0 0}
+.mstats{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.mstats div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:7px 12px;display:flex;flex-direction:column;min-width:78px}
+.mstats b{font:700 22px/1 var(--font-d);color:var(--fg)}
+.mstats span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.hm-r{position:relative;min-height:470px;display:grid;place-items:center;min-width:0}
+.hm-r .glow{position:absolute;width:min(480px,100%);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(233,185,73,.28),rgba(233,185,73,.06) 45%,transparent 68%);filter:blur(6px);animation:glowp 5s ease-in-out infinite}
+.hm-r .glow::after{content:"";position:absolute;inset:12%;border-radius:50%;border:2px dashed rgba(234,241,234,.12);animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.home .fan{position:relative;width:100%;max-width:520px;height:400px}
+.home .fan .card{width:172px;top:80px}
+.home .fan .f1{left:0}
+.home .fan .f2{left:calc(50% - 105px);top:20px;width:210px;z-index:2}
+.home .fan .f3{left:auto;right:4%}
+.home .fan .card{box-shadow:0 22px 44px rgba(0,0,0,.55)}
+.step{padding:6px 0 28px}
+.back{margin-bottom:12px}
+.stt{font-size:clamp(34px,5vw,54px);font-weight:800}
+.sth{margin:26px 0 10px;font-size:20px;color:var(--mute)}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:14px}
+.mode{position:relative;text-align:left;border:1px solid var(--line);border-radius:16px;padding:20px;background:linear-gradient(160deg,var(--panel2),var(--panel));display:flex;flex-direction:column;gap:8px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;animation:mrise .5s both}
+.mode:nth-child(2){animation-delay:.08s}.mode:nth-child(3){animation-delay:.16s}
+.mode:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 16px 34px rgba(0,0,0,.4)}
+.mode .mi{width:60px;height:60px;border-radius:16px;display:grid;place-items:center;background:rgba(233,185,73,.12);color:var(--gold)}
+.mode h3{font-size:30px;font-weight:800}
+.mode p{margin:0;color:var(--mute);font-size:14px;flex:1}
+.tagc{align-self:flex-start;background:rgba(233,185,73,.14);color:var(--gold);border-radius:99px;padding:3px 12px;font:700 13px var(--font-d);letter-spacing:.08em;text-transform:uppercase}
+.mode.daily{border-color:var(--gold);background:linear-gradient(160deg,#2a2410,var(--panel))}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:3px 14px;font:700 14px var(--font-d);letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.sets{margin-top:14px;padding:6px 18px}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 0;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:0}
+.srow b{font:700 20px var(--font-d);letter-spacing:.05em;text-transform:uppercase}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+@media(max-width:820px){.home{grid-template-columns:minmax(0,1fr);min-height:0;gap:10px}.hm-r{min-height:330px}.home .fan{height:310px}.home .fan .card{width:130px;top:56px}.home .fan .f2{width:160px;left:calc(50% - 80px);top:14px}.mtx b{font-size:21px}.mbtn.start .mtx b{font-size:30px}}
+/* ===== v8: telefon w poziomie ===== */
+@media (orientation:landscape) and (max-height:540px){
+  .top{position:static;padding:6px 0;margin-bottom:8px;backdrop-filter:none;-webkit-backdrop-filter:none}
+  body::before{display:none}
+  .brand{font-size:20px}
+  body:not([data-v=menu]) .brand{display:none}
+  body:not([data-v=menu]) .top{justify-content:flex-start}
+  .pill{padding:3px 9px;font-size:12px}.pill b{font-size:15px}
+  .btn{padding:6px 12px}
+  .top .btn{padding:4px 10px;font-size:13px}
+  .grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+  .grid.gs>div:last-child{order:-1;position:sticky;top:6px}
+  .pitch{width:min(100%,calc((100vh - 62px)*7/9))}
+  .home{grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:0;gap:16px;padding:4px 0}
+  .logo{font-size:40px}.tag{display:none}.eyebrow{font-size:11px}
+  .mbtn{padding:6px 12px}.mbtn.start{padding:10px 14px}.mic{width:36px;height:36px}.mbtn.start .mic{width:42px;height:42px}
+  .mtx b{font-size:19px}.mbtn.start .mtx b{font-size:26px}.mtx small{font-size:11px}
+  .hm-r{min-height:250px}.home .fan{height:250px}.home .fan .card{width:104px;top:44px}.home .fan .f2{width:128px;left:calc(50% - 64px);top:10px}
+  .stt{font-size:30px}.modes{gap:10px}.mode{padding:12px}.mode h3{font-size:22px}.mode .mi{width:44px;height:44px}
+  .forms{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Ultimate<b>11</b>Draft</div>
+    <div class="wallet">
+      <span class="pill">Reroll roku <b id="tokYear">0</b></span>
+      <span class="pill">Reroll wszystkiego <b id="tokAll">0</b></span>
+      <span class="pill">Monety <b id="tokCoin">0</b></span>
+      <span class="pill">Odłamki <b id="tokShard">0</b>/3</span>
+      <span class="nav"><button class="btn" data-act="mute" id="btnMute">Dźwięk: wł.</button>
+      <button class="btn" data-act="ups" id="btnUp">Ulepszenia</button>
+      <button class="btn" data-act="quests" id="btnQ">Questy<span class="dot" id="qBadge" hidden>0</span></button></span>
+    </div>
+  </header>
+  <main id="app"></main>
+</div>
+<div id="modal" class="modal" hidden></div>
+<div id="walk" class="walk" hidden></div>
+<canvas id="fx"></canvas>
+<div id="toast" class="toast" hidden></div>
+<script>
+/* Gracze: imię|poz|od|do|szczyt OVR|rok szczytu (przybliżone wartości do gry) */
+const RAW={
+POL:['Wojciech Szczęsny|GK|2007|2026|86|2018','Jerzy Dudek|GK|1998|2011|84|2005','Artur Boruc|GK|1999|2017|82|2008','Łukasz Fabiański|GK|2005|2024|82|2017','Łukasz Piszczek|RB|2005|2021|82|2013','Matty Cash|RB|2018|2026|77|2023','Kamil Glik|CB|2009|2022|80|2016','Jan Bednarek|CB|2016|2026|78|2021','Jacek Bąk|CB|1998|2009|78|2002','Michał Żewłakow|CB|1998|2012|76|2004','Nicola Zalewski|LB|2021|2026|75|2024','Grzegorz Krychowiak|CDM|2010|2023|80|2016','Piotr Zieliński|CM|2012|2026|83|2022','Sebastian Szymański|CAM|2018|2026|78|2024','Jakub Błaszczykowski|RW|2004|2021|82|2012','Kamil Grosicki|LW|2006|2025|77|2016','Robert Lewandowski|ST|2008|2026|92|2020','Arkadiusz Milik|ST|2012|2026|81|2018','Maciej Żurawski|ST|1998|2008|78|2004','Krzysztof Piątek|ST|2017|2026|78|2019'],
+BRA:['Dida|GK|1998|2010|82|2003','Alisson|GK|2013|2026|90|2020','Ederson|GK|2015|2026|87|2021','Cafu|RB|1998|2008|88|2002','Dani Alves|RB|2003|2023|88|2011','Roberto Carlos|LB|1998|2007|88|2002','Marcelo|LB|2006|2024|88|2016','Lúcio|CB|2001|2012|85|2009','Thiago Silva|CB|2005|2026|88|2013','Marquinhos|CB|2012|2026|87|2019','Fernandinho|CDM|2005|2023|85|2016','Casemiro|CDM|2012|2026|87|2019','Bruno Guimarães|CM|2018|2026|84|2024','Kaká|CAM|2002|2017|91|2007','Ronaldinho|CAM|2001|2015|93|2005','Rivaldo|CAM|1998|2008|91|1999','Philippe Coutinho|CAM|2010|2024|86|2018','Neymar|LW|2010|2026|92|2016','Vinícius Júnior|LW|2018|2026|91|2024','Rodrygo|RW|2019|2026|84|2023','Raphinha|RW|2018|2026|88|2025','Ronaldo Nazário|ST|1998|2011|94|2000','Gabriel Jesus|ST|2015|2026|83|2018','Richarlison|ST|2016|2026|80|2022'],
+ARG:['Emiliano Martínez|GK|2012|2026|87|2023','Sergio Romero|GK|2007|2022|80|2014','Javier Zanetti|RB|1998|2014|84|2003','Roberto Ayala|CB|1998|2009|85|2003','Nicolás Otamendi|CB|2007|2026|83|2016','Cristian Romero|CB|2018|2026|85|2024','Gabriel Heinze|LB|1998|2011|82|2005','Nicolás Tagliafico|LB|2013|2026|79|2022','Javier Mascherano|CDM|2003|2020|87|2011','Rodrigo De Paul|CM|2012|2026|83|2022','Enzo Fernández|CM|2019|2026|85|2024','Alexis Mac Allister|CM|2016|2026|85|2024','Juan Román Riquelme|CAM|1998|2014|87|2001','Ángel Di María|RW|2005|2026|88|2015','Lionel Messi|RW|2004|2026|96|2012','Gabriel Batistuta|ST|1998|2005|90|1998','Hernán Crespo|ST|1998|2012|85|2004','Carlos Tevez|ST|2002|2021|86|2010','Sergio Agüero|ST|2003|2021|89|2015','Lautaro Martínez|ST|2016|2026|88|2024','Julián Álvarez|ST|2019|2026|86|2025'],
+FRA:['Fabien Barthez|GK|1998|2007|86|1998','Hugo Lloris|GK|2008|2024|87|2018','Mike Maignan|GK|2015|2026|87|2023','Benjamin Pavard|RB|2016|2026|82|2019','Lilian Thuram|CB|1998|2008|87|2000','Marcel Desailly|CB|1998|2004|88|1998','Raphaël Varane|CB|2011|2025|87|2018','William Saliba|CB|2019|2026|87|2025','Bixente Lizarazu|LB|1998|2006|86|1999','Patrice Evra|LB|2002|2019|85|2009','Theo Hernández|LB|2016|2026|86|2023','Didier Deschamps|CDM|1998|2001|85|1998','N’Golo Kanté|CDM|2015|2026|89|2017','Patrick Vieira|CM|1998|2009|88|2003','Paul Pogba|CM|2012|2024|87|2018','Zinedine Zidane|CAM|1998|2006|95|2000','Antoine Griezmann|CAM|2010|2026|89|2018','Franck Ribéry|LW|2005|2022|89|2013','Ousmane Dembélé|RW|2016|2026|88|2025','Thierry Henry|ST|1998|2014|93|2004','Karim Benzema|ST|2005|2025|92|2022','Kylian Mbappé|ST|2016|2026|94|2024','Olivier Giroud|ST|2008|2026|82|2018'],
+GER:['Oliver Kahn|GK|1998|2008|93|2002','Manuel Neuer|GK|2007|2026|93|2014','Marc-André ter Stegen|GK|2011|2026|88|2019','Philipp Lahm|RB|2003|2017|90|2013','Per Mertesacker|CB|2006|2018|82|2011','Mats Hummels|CB|2008|2024|87|2014','Jérôme Boateng|CB|2007|2022|86|2014','Antonio Rüdiger|CB|2014|2026|86|2023','Sami Khedira|CDM|2007|2021|85|2012','Joshua Kimmich|CDM|2015|2026|89|2021','Michael Ballack|CM|1999|2012|88|2005','Bastian Schweinsteiger|CM|2002|2019|88|2013','Toni Kroos|CM|2007|2024|91|2016','Mesut Özil|CAM|2006|2021|89|2013','Thomas Müller|CAM|2008|2025|88|2013','Jamal Musiala|CAM|2020|2026|87|2024','Florian Wirtz|CAM|2020|2026|87|2025','Marco Reus|LW|2009|2025|87|2013','Leroy Sané|LW|2014|2026|85|2024','Serge Gnabry|RW|2014|2026|84|2019','Miroslav Klose|ST|1999|2016|86|2006','Kai Havertz|ST|2018|2026|82|2024'],
+ESP:['Iker Casillas|GK|1999|2020|92|2009','David de Gea|GK|2010|2025|88|2018','David Raya|GK|2013|2026|85|2025','Dani Carvajal|RB|2012|2026|87|2024','Carles Puyol|CB|1999|2014|89|2009','Gerard Piqué|CB|2004|2022|89|2011','Sergio Ramos|CB|2004|2021|91|2017','Pau Cubarsí|CB|2023|2026|80|2026','Jordi Alba|LB|2009|2024|87|2015','Marc Cucurella|LB|2018|2026|82|2024','Sergio Busquets|CDM|2008|2025|89|2012','Rodri|CDM|2018|2026|92|2024','Xabi Alonso|CM|2001|2017|89|2010','Xavi|CM|1999|2016|92|2010','Andrés Iniesta|CM|2002|2018|92|2010','Pedri|CM|2020|2026|87|2025','Cesc Fàbregas|CAM|2004|2019|88|2010','David Silva|CAM|2004|2021|89|2012','Lamine Yamal|RW|2023|2026|90|2026','Nico Williams|LW|2021|2026|84|2025','Raúl|ST|1998|2015|89|1999','Fernando Torres|ST|2001|2019|90|2008','David Villa|ST|2003|2019|89|2010','Álvaro Morata|ST|2010|2026|81|2017'],
+ITA:['Gianluigi Buffon|GK|1998|2023|93|2006','Francesco Toldo|GK|1998|2010|85|2001','Gianluigi Donnarumma|GK|2015|2026|89|2025','Gianluca Zambrotta|RB|1998|2010|86|2006','Paolo Maldini|LB|1998|2009|92|2000','Federico Dimarco|LB|2018|2026|83|2025','Fabio Cannavaro|CB|1998|2011|92|2006','Alessandro Nesta|CB|1998|2013|91|2002','Giorgio Chiellini|CB|2004|2022|88|2016','Leonardo Bonucci|CB|2007|2024|87|2017','Alessandro Bastoni|CB|2017|2026|86|2024','Gennaro Gattuso|CDM|1998|2013|85|2006','Daniele De Rossi|CDM|2001|2019|87|2010','Jorginho|CDM|2010|2026|85|2021','Andrea Pirlo|CM|1998|2017|91|2007','Marco Verratti|CM|2010|2024|88|2015','Nicolò Barella|CM|2015|2026|87|2023','Francesco Totti|CAM|1998|2017|91|2001','Alessandro Del Piero|CAM|1998|2014|90|1998','Federico Chiesa|LW|2016|2026|83|2021','Christian Vieri|ST|1998|2009|89|2000','Filippo Inzaghi|ST|1998|2012|87|2003','Luca Toni|ST|1999|2016|86|2006','Ciro Immobile|ST|2009|2026|85|2020'],
+ENG:['David Seaman|GK|1998|2004|85|1998','Joe Hart|GK|2006|2023|86|2014','Jordan Pickford|GK|2013|2026|86|2025','Gary Neville|RB|1998|2011|85|2000','Kyle Walker|RB|2008|2026|87|2018','Trent Alexander-Arnold|RB|2016|2026|88|2022','Ashley Cole|LB|1999|2019|88|2008','John Terry|CB|1998|2018|89|2008','Rio Ferdinand|CB|1998|2015|89|2008','Harry Maguire|CB|2011|2026|82|2018','John Stones|CB|2012|2026|86|2023','Declan Rice|CDM|2016|2026|88|2025','Steven Gerrard|CM|1998|2016|91|2009','Frank Lampard|CM|1998|2017|90|2005','Paul Scholes|CM|1998|2013|88|2003','Jude Bellingham|CAM|2019|2026|90|2025','Phil Foden|CAM|2017|2026|87|2024','David Beckham|RW|1998|2013|90|1999','Bukayo Saka|RW|2018|2026|88|2025','Raheem Sterling|LW|2012|2026|85|2019','Alan Shearer|ST|1998|2006|88|1998','Michael Owen|ST|1998|2013|88|2001','Wayne Rooney|ST|2002|2021|91|2010','Harry Kane|ST|2011|2026|93|2024'],
+NED:['Edwin van der Sar|GK|1998|2011|90|2009','Maarten Stekelenburg|GK|2002|2023|80|2010','Bart Verbruggen|GK|2020|2026|80|2025','Gregory van der Wiel|RB|2009|2018|78|2011','Jaap Stam|CB|1998|2007|89|2000','Virgil van Dijk|CB|2011|2026|91|2019','Matthijs de Ligt|CB|2017|2026|84|2020','Nathan Aké|CB|2012|2026|82|2022','Giovanni van Bronckhorst|LB|1998|2010|85|2005','Frenkie de Jong|CM|2015|2026|87|2022','Clarence Seedorf|CM|1998|2014|88|2001','Wesley Sneijder|CAM|2003|2019|89|2010','Rafael van der Vaart|CAM|2000|2019|85|2007','Dennis Bergkamp|CAM|1998|2006|91|1998','Xavi Simons|CAM|2020|2026|84|2025','Marc Overmars|LW|1998|2004|86|1999','Cody Gakpo|LW|2017|2026|84|2024','Arjen Robben|RW|2002|2021|90|2012','Dirk Kuyt|RW|2001|2017|83|2010','Patrick Kluivert|ST|1998|2008|86|1998','Ruud van Nistelrooy|ST|1998|2012|90|2003','Robin van Persie|ST|2001|2019|90|2012','Memphis Depay|ST|2011|2026|83|2018'],
+POR:['Vítor Baía|GK|1998|2009|83|2000','Rui Patrício|GK|2006|2026|84|2016','Diogo Costa|GK|2019|2026|85|2025','João Cancelo|RB|2014|2026|86|2020','Ricardo Carvalho|CB|1998|2015|86|2007','Pepe|CB|2002|2024|88|2014','Rúben Dias|CB|2017|2026|89|2021','Fábio Coentrão|LB|2007|2020|82|2012','Nuno Mendes|LB|2020|2026|86|2025','João Moutinho|CM|2005|2024|84|2013','Rúben Neves|CM|2014|2026|82|2020','Vitinha|CM|2019|2026|87|2025','Rui Costa|CAM|1998|2008|88|1999','Deco|CAM|1998|2013|88|2004','Bruno Fernandes|CAM|2012|2026|88|2021','Bernardo Silva|CAM|2013|2026|89|2021','Luís Figo|RW|1998|2009|93|2001','Nani|LW|2005|2021|84|2010','Rafael Leão|LW|2017|2026|87|2024','Pauleta|ST|1998|2008|85|2003','Cristiano Ronaldo|ST|2002|2026|95|2008','João Félix|ST|2018|2026|83|2020','Gonçalo Ramos|ST|2019|2026|80|2025']
+};
+const COUNTRIES={POL:'Polska',BRA:'Brazylia',ARG:'Argentyna',FRA:'Francja',GER:'Niemcy',ESP:'Hiszpania',ITA:'Włochy',ENG:'Anglia',NED:'Holandia',POR:'Portugalia'};
+const CODES=Object.keys(COUNTRIES);
+const GROUP={GK:'GK',LB:'DEF',CB:'DEF',RB:'DEF',CDM:'MID',CM:'MID',CAM:'MID',LW:'FWD',RW:'FWD',ST:'FWD'};
+const PLAYERS=[];
+for(const c of CODES){for(const s of RAW[c]){const a=s.split('|');PLAYERS.push({n:a[0],pos:a[1],g:GROUP[a[1]],c,from:+a[2],to:+a[3],peak:+a[4],py:+a[5]});}}
+/* Nowe kraje: belgia, chorwacja, urugwaj, kolumbia, szwecja, dania */
+const NEWC={BEL:'Belgia',CRO:'Chorwacja',URU:'Urugwaj',COL:'Kolumbia',SWE:'Szwecja',DEN:'Dania'};
+const RAW2={
+BEL:['Thibaut Courtois|GK|2009|2026|91|2018','Simon Mignolet|GK|2008|2022|80|2016','Filip De Wilde|GK|1998|2001|78|1999','Toby Alderweireld|CB|2008|2024|85|2017','Jan Vertonghen|CB|2006|2024|85|2016','Vincent Kompany|CB|2004|2020|90|2012','Thomas Vermaelen|CB|2006|2021|83|2010','Daniel Van Buyten|CB|1998|2014|81|2008','Thomas Meunier|RB|2012|2024|79|2019','Axel Witsel|CDM|2007|2024|85|2018','Leander Dendoncker|CDM|2014|2025|76|2020','Marouane Fellaini|CM|2007|2021|82|2013','Radja Nainggolan|CM|2008|2022|85|2016','Mousa Dembélé|CM|2005|2022|84|2012','Youri Tielemans|CM|2015|2026|83|2022','Kevin De Bruyne|CAM|2010|2026|93|2020','Eden Hazard|LW|2007|2023|91|2015','Dries Mertens|LW|2006|2023|86|2017','Yannick Carrasco|LW|2012|2026|82|2018','Leandro Trossard|LW|2012|2026|83|2024','Jérémy Doku|LW|2020|2026|83|2025','Romelu Lukaku|ST|2009|2026|87|2019','Michy Batshuayi|ST|2012|2026|78|2017'],
+CRO:['Stipe Pletikosa|GK|1998|2014|80|2008','Danijel Subašić|GK|2005|2021|84|2018','Dominik Livaković|GK|2013|2026|82|2022','Darijo Srna|RB|2003|2018|84|2009','Josip Juranović|RB|2018|2026|78|2022','Vedran Ćorluka|CB|2005|2018|80|2010','Dejan Lovren|CB|2007|2024|82|2018','Joško Gvardiol|CB|2019|2026|86|2024','Josip Šimunić|CB|1998|2013|80|2006','Slaven Bilić|CB|1998|2000|80|1998','Niko Kovač|CM|1998|2009|82|2002','Luka Modrić|CM|2004|2026|93|2018','Ivan Rakitić|CM|2007|2023|87|2015','Mateo Kovačić|CM|2011|2026|85|2022','Marcelo Brozović|CDM|2011|2026|86|2022','Mario Pašalić|CM|2013|2026|79|2023','Zvonimir Boban|CAM|1998|2001|84|1998','Robert Prosinečki|CAM|1998|2002|82|1998','Lovro Majer|CAM|2017|2026|78|2023','Ivan Perišić|LW|2008|2026|85|2018','Davor Šuker|ST|1998|2003|85|1998','Mario Mandžukić|ST|2005|2021|86|2017','Ivica Olić|ST|2001|2016|82|2009','Andrej Kramarić|ST|2010|2026|83|2020','Ivan Klasnić|ST|2002|2014|78|2006'],
+URU:['Fernando Muslera|GK|2007|2024|85|2013','Sergio Rochet|GK|2012|2026|78|2023','Maxi Pereira|RB|2004|2020|80|2010','Álvaro Pereira|LB|2005|2019|78|2011','Paolo Montero|CB|1998|2005|82|1999','Diego Lugano|CB|2001|2015|82|2007','Diego Godín|CB|2005|2022|89|2014','Martín Cáceres|CB|2007|2023|80|2015','José María Giménez|CB|2013|2026|85|2018','Ronald Araújo|CB|2018|2026|85|2023','Lucas Torreira|CDM|2014|2026|82|2018','Matías Vecino|CM|2012|2024|78|2018','Rodrigo Bentancur|CM|2015|2026|83|2022','Federico Valverde|CM|2016|2026|90|2024','Álvaro Recoba|CAM|1998|2012|84|2003','Nicolás Lodeiro|CAM|2007|2025|80|2016','Giorgian de Arrascaeta|CAM|2013|2026|85|2022','Facundo Pellistri|RW|2020|2026|75|2023','Diego Forlán|ST|1999|2019|88|2010','Luis Suárez|ST|2006|2026|92|2016','Edinson Cavani|ST|2007|2025|88|2017','Darwin Núñez|ST|2018|2026|83|2024','Maxi Gómez|ST|2016|2026|80|2019'],
+COL:['Faryd Mondragón|GK|1998|2014|79|2008','David Ospina|GK|2003|2024|82|2016','Camilo Vargas|GK|2008|2026|80|2022','Santiago Arias|RB|2010|2024|77|2018','Daniel Muñoz|RB|2018|2026|80|2025','Mario Yepes|CB|1998|2014|83|2008','Cristian Zapata|CB|2004|2022|80|2013','Yerry Mina|CB|2014|2026|80|2019','Davinson Sánchez|CB|2015|2026|80|2022','Johan Mojica|LB|2011|2026|77|2023','Wílmar Barrios|CDM|2012|2026|79|2019','Carlos Sánchez|CDM|2005|2022|77|2016','Freddy Rincón|CM|1998|2001|80|1998','Jefferson Lerma|CM|2015|2026|80|2022','Carlos Valderrama|CAM|1998|2004|82|1998','James Rodríguez|CAM|2008|2026|88|2014','Juan Cuadrado|RW|2007|2025|85|2015','Jhon Arias|RW|2017|2026|79|2024','Luis Díaz|LW|2016|2026|87|2025','Faustino Asprilla|ST|1998|2004|80|1998','Radamel Falcao|ST|2005|2025|89|2013','Jackson Martínez|ST|2008|2019|83|2015','Teófilo Gutiérrez|ST|2005|2022|78|2013','Duván Zapata|ST|2010|2026|82|2019','Rafael Santos Borré|ST|2014|2026|78|2021'],
+SWE:['Andreas Isaksson|GK|1998|2016|80|2008','Robin Olsen|GK|2010|2026|77|2018','Patrik Andersson|CB|1998|2002|82|1998','Olof Mellberg|CB|1998|2012|85|2006','Andreas Granqvist|CB|2005|2020|80|2018','Victor Lindelöf|CB|2012|2026|83|2021','Mikael Lustig|RB|2007|2022|77|2018','Emil Krafth|RB|2013|2026|75|2022','Ludwig Augustinsson|LB|2013|2026|77|2018','Tobias Linderoth|CDM|1999|2008|79|2004','Anders Svensson|CM|1999|2013|80|2005','Kim Källström|CM|2001|2016|80|2008','Albin Ekdal|CM|2007|2023|77|2016','Emil Forsberg|CAM|2011|2026|82|2017','Fredrik Ljungberg|RW|1998|2009|87|2002','Christian Wilhelmsson|LW|1999|2012|78|2006','Dejan Kulusevski|RW|2018|2026|84|2024','Henrik Larsson|ST|1998|2009|90|2003','Zlatan Ibrahimović|ST|1999|2023|93|2013','Marcus Allbäck|ST|1998|2010|78|2002','Johan Elmander|ST|2003|2016|79|2009','Marcus Berg|ST|2007|2024|79|2015','Alexander Isak|ST|2016|2026|89|2024','Viktor Gyökeres|ST|2016|2026|88|2025'],
+DEN:['Peter Schmeichel|GK|1998|2003|91|1999','Thomas Sørensen|GK|1998|2013|82|2008','Kasper Schmeichel|GK|2005|2025|86|2017','Daniel Wass|RB|2010|2024|79|2017','Joakim Mæhle|LB|2015|2026|80|2022','Daniel Agger|CB|2005|2016|85|2009','Simon Kjær|CB|2008|2025|84|2018','Andreas Christensen|CB|2013|2026|84|2022','Joachim Andersen|CB|2014|2026|82|2024','Jannik Vestergaard|CB|2011|2024|79|2018','Thomas Gravesen|CDM|1998|2008|80|2003','Thomas Delaney|CDM|2010|2025|82|2018','Pierre-Emile Højbjerg|CM|2012|2026|84|2021','Christian Eriksen|CAM|2010|2026|89|2018','Mikkel Damsgaard|CAM|2017|2026|79|2022','Brian Laudrup|LW|1998|1999|88|1998','Martin Jørgensen|LW|1998|2011|80|2004','Jesper Grønkjær|LW|1998|2012|80|2003','Dennis Rommedahl|RW|1998|2015|77|2006','Jon Dahl Tomasson|ST|1998|2011|83|2004','Nicklas Bendtner|ST|2005|2020|78|2011','Yussuf Poulsen|ST|2012|2026|80|2018','Rasmus Højlund|ST|2020|2026|80|2024']
+};
+/* Dodatkowi zawodnicy w istniejących krajach + scalanie z bazą */
+const EXTRA={
+POL:['Tomasz Kuszczak|GK|2002|2015|78|2008','Tomasz Hajto|CB|1998|2007|77|2001','Piotr Świerczewski|CDM|1998|2002|78|1998','Jakub Kiwior|CB|2018|2026|78|2024','Bartosz Bereszyński|RB|2011|2025|76|2019','Przemysław Frankowski|RM|2011|2026|76|2022','Jakub Moder|CM|2018|2026|76|2022','Ebi Smolarek|ST|2002|2013|78|2006','Karol Świderski|ST|2015|2026|75|2023'],
+BRA:['Júlio César|GK|2002|2018|87|2010','Taffarel|GK|1998|2003|85|1998','Danilo|RB|2009|2026|82|2019','Alex Sandro|LB|2010|2026|82|2017','Éder Militão|CB|2016|2026|84|2022','Gabriel Magalhães|CB|2017|2026|86|2024','Gilberto Silva|CDM|1999|2012|83|2005','Paulinho|CM|2010|2022|80|2018','Juninho Pernambucano|CAM|2001|2013|84|2007','Lucas Paquetá|CAM|2016|2026|85|2024','Robinho|LW|2002|2017|85|2008','Willian|RW|2007|2024|84|2016','Adriano|ST|2000|2016|87|2005','Roberto Firmino|ST|2010|2026|86|2018'],
+ARG:['Pablo Zabaleta|RB|2003|2020|83|2012','Nahuel Molina|RB|2016|2026|79|2022','Walter Samuel|CB|1998|2014|87|2003','Marcos Rojo|CB|2009|2023|79|2015','Lisandro Martínez|CB|2016|2026|83|2023','Esteban Cambiasso|CDM|2001|2018|85|2010','Fernando Gago|CM|2004|2020|82|2008','Pablo Aimar|CAM|1998|2014|85|2004','Paulo Dybala|CAM|2011|2026|88|2018','Ezequiel Lavezzi|RW|2005|2019|82|2012','Alejandro Garnacho|LW|2022|2026|80|2025','Diego Milito|ST|2001|2016|88|2010','Gonzalo Higuaín|ST|2006|2022|89|2016'],
+FRA:['Steve Mandanda|GK|2007|2024|80|2015','Jules Koundé|RB|2017|2026|85|2022','Laurent Blanc|CB|1998|2003|84|1998','Dayot Upamecano|CB|2016|2026|84|2023','Lucas Hernández|LB|2014|2026|83|2019','Claude Makélélé|CDM|1998|2011|88|2005','Emmanuel Petit|CDM|1998|2004|85|1999','Aurélien Tchouaméni|CDM|2019|2026|85|2024','Eduardo Camavinga|CM|2019|2026|84|2024','Youri Djorkaeff|CAM|1998|2006|85|1999','Christopher Nkunku|CAM|2015|2026|84|2022','Robert Pirès|LW|1998|2011|88|2002','Sylvain Wiltord|RW|1998|2009|84|2001','David Trezeguet|ST|1998|2014|89|2003','Nicolas Anelka|ST|1998|2015|85|2009','Marcus Thuram|ST|2018|2026|82|2024'],
+GER:['Jens Lehmann|GK|1998|2011|86|2006','René Adler|GK|2007|2016|83|2010','Christoph Metzelder|CB|2000|2011|83|2005','Arne Friedrich|CB|2002|2011|80|2008','Benedikt Höwedes|CB|2007|2021|82|2014','Niklas Süle|CB|2013|2026|83|2019','Dietmar Hamann|CDM|1998|2006|83|2001','Jens Jeremies|CDM|1998|2003|80|2000','İlkay Gündoğan|CM|2009|2026|87|2021','Leon Goretzka|CM|2013|2026|85|2019','Mario Götze|CAM|2009|2024|85|2014','Bernd Schneider|LM|1998|2009|82|2002','André Schürrle|LW|2009|2020|82|2014','Lukas Podolski|ST|2003|2022|83|2008','Mario Gómez|ST|2004|2020|85|2012','Oliver Neuville|ST|1998|2011|80|2004','Niclas Füllkrug|ST|2012|2026|80|2024'],
+ESP:['Pepe Reina|GK|2000|2021|85|2008','Víctor Valdés|GK|2002|2016|86|2011','Unai Simón|GK|2017|2026|85|2023','César Azpilicueta|RB|2008|2023|85|2014','Michel Salgado|RB|1998|2010|83|2003','Joan Capdevila|LB|2000|2014|82|2010','Fernando Hierro|CB|1998|2003|86|1998','Aymeric Laporte|CB|2012|2026|85|2022','Gaizka Mendieta|CM|1998|2008|85|2000','Mikel Arteta|CM|2000|2016|82|2010','Koke|CM|2009|2026|85|2016','Fabián Ruiz|CM|2014|2026|84|2024','Santi Cazorla|CAM|2003|2022|87|2012','Juan Mata|CAM|2006|2024|85|2012','Dani Olmo|CAM|2014|2026|85|2024','Joaquín|RW|2000|2023|82|2005','Fernando Morientes|ST|1998|2011|84|2001','Mikel Oyarzabal|ST|2015|2026|84|2024'],
+ITA:['Angelo Peruzzi|GK|1998|2008|85|1999','Gianluca Pagliuca|GK|1998|2000|82|1998','Christian Panucci|RB|1998|2009|82|2000','Marco Materazzi|CB|1998|2014|85|2007','Andrea Barzagli|CB|2004|2019|85|2013','Simone Perrotta|CM|2001|2014|80|2006','Claudio Marchisio|CM|2006|2019|85|2012','Sandro Tonali|CM|2017|2026|85|2024','Gianfranco Zola|CAM|1998|2005|87|1998','Roberto Baggio|CAM|1998|2004|88|1999','Antonio Cassano|CAM|1999|2018|84|2008','Mauro Camoranesi|RW|2002|2012|83|2006','Lorenzo Insigne|LW|2009|2024|87|2018','Antonio Di Natale|ST|2002|2016|85|2011','Mario Balotelli|ST|2007|2024|83|2011','Mateo Retegui|ST|2020|2026|80|2025'],
+ENG:['Nick Pope|GK|2011|2026|82|2023','Aaron Ramsdale|GK|2016|2026|79|2022','Glen Johnson|RB|2003|2017|80|2010','Kieran Trippier|RB|2009|2026|84|2018','Luke Shaw|LB|2012|2026|83|2022','Sol Campbell|CB|1998|2011|86|2004','Jamie Carragher|CB|1998|2013|85|2006','Gary Cahill|CB|2004|2020|82|2015','Owen Hargreaves|CDM|2000|2012|84|2008','Michael Carrick|CDM|1999|2018|85|2012','Jordan Henderson|CM|2008|2026|83|2019','Joe Cole|CAM|1998|2016|82|2004','Cole Palmer|CAM|2020|2026|87|2025','Jack Grealish|LW|2013|2026|85|2022','Marcus Rashford|LW|2015|2026|86|2023','Jadon Sancho|RW|2017|2026|83|2021','Emile Heskey|ST|1998|2014|78|2002','Jermain Defoe|ST|2000|2022|82|2009','Peter Crouch|ST|2000|2019|80|2008','Jamie Vardy|ST|2012|2026|85|2016','Ollie Watkins|ST|2016|2026|83|2024'],
+NED:['Jasper Cillessen|GK|2009|2023|82|2015','Frank de Boer|CB|1998|2006|86|1999','Ron Vlaar|CB|2005|2019|79|2014','Stefan de Vrij|CB|2010|2026|85|2018','Daley Blind|LB|2008|2024|82|2014','Denzel Dumfries|RB|2014|2026|84|2021','Edgar Davids|CM|1998|2010|88|2000','Phillip Cocu|CM|1998|2008|83|2003','Mark van Bommel|CM|1999|2013|85|2009','Nigel de Jong|CDM|2003|2018|84|2010','Kevin Strootman|CM|2008|2022|83|2014','Georginio Wijnaldum|CM|2008|2025|85|2019','Ryan Gravenberch|CM|2018|2026|85|2025','Tijjani Reijnders|CM|2017|2026|83|2025','Boudewijn Zenden|LW|1998|2011|83|2004','Donyell Malen|RW|2017|2026|80|2022','Jimmy Floyd Hasselbaink|ST|1998|2010|86|2001','Roy Makaay|ST|1998|2010|87|2004','Klaas-Jan Huntelaar|ST|2002|2021|85|2010','Wout Weghorst|ST|2012|2026|79|2021'],
+POR:['Paulo Ferreira|RB|1998|2013|82|2005','Bruno Alves|CB|2002|2019|82|2011','José Fonte|CB|2005|2023|78|2016','Gonçalo Inácio|CB|2020|2026|83|2025','Raphaël Guerreiro|LB|2012|2026|84|2021','Maniche|CDM|1998|2012|83|2005','Costinha|CDM|1998|2008|80|2004','William Carvalho|CDM|2011|2026|80|2018','Tiago|CM|2000|2016|82|2005','Renato Sanches|CM|2014|2026|80|2016','João Neves|CM|2022|2026|84|2025','Ricardo Quaresma|RW|2001|2020|84|2008','Pedro Neto|RW|2018|2026|81|2025','Diogo Jota|LW|2015|2025|85|2022','Nuno Gomes|ST|1998|2012|83|2004','Hélder Postiga|ST|2001|2017|79|2008','André Silva|ST|2015|2026|79|2017']
+};
+for(const c in NEWC){COUNTRIES[c]=NEWC[c];if(!CODES.includes(c))CODES.push(c);}
+const ADD=Object.assign({},RAW2);
+for(const c in EXTRA){ADD[c]=(ADD[c]||[]).concat(EXTRA[c]);}
+for(const c in ADD){for(const s of ADD[c]){const a=s.split('|');PLAYERS.push({n:a[0],pos:a[1],g:GROUP[a[1]]||'MID',c,from:+a[2],to:+a[3],peak:+a[4],py:+a[5]});}}
+/* v9: kolejna paczka zawodników (więcej brązu, srebra i złota). Format: imię|poz|od|do|szczyt|rok szczytu */
+const MORE={};
+Object.assign(MORE,{
+POL:['Łukasz Skorupski|GK|2012|2026|80|2023','Marcin Bułka|GK|2018|2026|78|2025','Przemysław Tytoń|GK|2008|2022|76|2014','Wojciech Kowalewski|GK|1998|2008|74|2004','Michał Pazdan|CB|2008|2023|74|2016','Artur Jędrzejczyk|CB|2007|2024|74|2016','Marcin Wasilewski|CB|2000|2017|73|2008','Arkadiusz Głowacki|CB|2000|2014|72|2008','Tomasz Kłos|CB|1998|2004|73|2001','Marcin Kamiński|CB|2013|2026|72|2018','Michał Helik|CB|2018|2026|72|2023','Paweł Olkowski|RB|2012|2024|70|2018','Robert Gumny|RB|2018|2026|70|2022','Maciej Rybus|LB|2010|2023|74|2016','Jakub Wawrzyniak|LB|2007|2016|70|2010','Tymoteusz Puchacz|LB|2020|2026|69|2022','Jacek Krzynówek|LW|1998|2012|78|2004','Radosław Sobolewski|CDM|1998|2010|74|2002','Dariusz Dudka|CDM|2003|2018|74|2009','Mariusz Lewandowski|CDM|1999|2014|74|2005','Bartosz Slisz|CDM|2020|2026|72|2024','Ludovic Obraniak|CAM|2010|2017|76|2012','Mateusz Klich|CM|2013|2026|76|2021','Karol Linetty|CM|2015|2026|72|2019','Mirosław Szymkowiak|CAM|1998|2009|72|2003','Kamil Kosowski|RW|2000|2011|72|2004','Przemysław Płacheta|RW|2018|2026|70|2021','Jakub Kamiński|LW|2020|2026|72|2023','Adam Buksa|ST|2016|2026|73|2023','Tomasz Frankowski|ST|1998|2012|74|2005','Paweł Brożek|ST|2005|2020|72|2009','Łukasz Teodorczyk|ST|2011|2023|72|2016','Dawid Kownacki|ST|2015|2026|70|2020'],
+BRA:['Cássio|GK|2005|2026|80|2015','Weverton|GK|2008|2026|80|2022','Marcos|GK|1998|2012|82|2002','Lucas Veríssimo|CB|2018|2026|74|2022','Juan|CB|2001|2014|80|2008','Naldo|CB|2005|2020|78|2014','David Luiz|CB|2007|2024|84|2014','Miranda|CB|2007|2020|80|2014','Edmílson|CB|1998|2010|80|2002','Roque Júnior|CB|1998|2008|78|2002','Gilberto|LB|2000|2012|72|2006','Maicon|RB|2003|2017|85|2010','Emerson Royal|RB|2017|2026|76|2022','Fabinho|CDM|2012|2026|86|2020','Emerson|CDM|1998|2009|78|2002','Kléberson|CM|2000|2012|78|2003','Zé Roberto|CM|1998|2012|84|2006','Ramires|CM|2008|2020|82|2011','Hernanes|CM|2007|2020|82|2013','Oscar|CAM|2010|2024|84|2013','Ricardo Oliveira|ST|2000|2020|74|2008','Elano|CAM|2003|2015|80|2008','Diego|CAM|2003|2018|83|2009','Edu|RW|1998|2008|72|2003','Luís Fabiano|ST|2002|2018|84|2008','Fred|ST|2005|2019|80|2013','Hulk|RW|2005|2024|85|2012','Bernard|RW|2011|2021|76|2013','Douglas Costa|RW|2008|2024|82|2016','Talisca|CAM|2013|2026|80|2022','Antony|RW|2018|2026|78|2022','Matheus Cunha|ST|2017|2026|83|2025','João Pedro|ST|2019|2026|82|2025','Endrick|ST|2022|2026|76|2025','Gabriel Barbosa|ST|2014|2026|78|2019','Everton Ribeiro|CAM|2008|2026|76|2018','Andreas Pereira|CAM|2014|2026|74|2022','Savinho|RW|2021|2026|82|2025'],
+ARG:['Willy Caballero|GK|2004|2021|76|2018','Franco Armani|GK|2008|2026|80|2019','Gerónimo Rulli|GK|2012|2026|78|2025','Germán Pezzella|CB|2011|2026|78|2019','Federico Fazio|CB|2007|2022|76|2016','Martín Demichelis|CB|2001|2017|82|2010','Gonzalo Montiel|RB|2016|2026|77|2022','Gabriel Mercado|RB|2008|2024|74|2017','Marcos Acuña|LB|2010|2026|80|2022','Clemente Rodríguez|LB|2004|2016|74|2008','Leandro Paredes|CM|2012|2026|79|2022','Ever Banega|CM|2007|2023|82|2016','Lucas Biglia|CDM|2005|2021|78|2014','Augusto Fernández|CDM|2006|2017|74|2011','Guido Rodríguez|CDM|2013|2026|76|2022','Geovani Lo Celso|CAM|2014|2026|80|2019','Javier Pastore|CAM|2008|2022|83|2012','Maxi Rodríguez|LW|2001|2016|80|2007','Rodrigo Palacio|ST|2003|2020|78|2014','Mauro Icardi|ST|2011|2026|83|2017','Ángel Correa|ST|2013|2026|78|2021','Nicolás González|LW|2017|2026|78|2023','Giovani Simeone|ST|2016|2026|72|2024','Thiago Almada|CAM|2018|2026|79|2024','Matías Soulé|RW|2021|2026|74|2025','Franco Mastantuono|CAM|2023|2026|76|2025','Claudio López|LW|1998|2008|78|2000','Ariel Ortega|CAM|1998|2007|78|1999','Juan Sebastián Verón|CM|1998|2012|88|2001','Diego Simeone|CDM|1998|2004|80|1999','Kily González|LW|1998|2008|76|2002','Mariano Pernía|LB|2003|2012|72|2007','Diego Placente|LB|1998|2009|72|2002','Fabricio Coloccini|CB|1999|2018|80|2008','Nicolás Burdisso|CB|2000|2016|80|2007','Gabriel Milito|CB|2000|2012|82|2007','Leandro Cufré|CB|2000|2012|70|2005'],
+FRA:['Alphonse Areola|GK|2013|2026|80|2020','Brice Samba|GK|2015|2026|78|2024','Lucas Chevalier|GK|2020|2026|78|2025','Bacary Sagna|RB|2007|2020|82|2012','Mathieu Debuchy|RB|2007|2020|76|2014','Djibril Sidibé|RB|2013|2026|75|2018','Léo Dubois|RB|2014|2026|72|2020','Jean-Clair Todibo|CB|2017|2026|79|2024','Presnel Kimpembe|CB|2014|2026|83|2021','Samuel Umtiti|CB|2012|2021|83|2018','Adil Rami|CB|2006|2021|78|2018','Mamadou Sakho|CB|2007|2022|79|2014','Philippe Mexès|CB|1999|2016|82|2005','William Gallas|CB|1999|2014|85|2006','Frank Leboeuf|CB|1998|2002|78|1998','Jean-Alain Boumsong|CB|2000|2012|74|2005','Eric Abidal|LB|2000|2014|84|2010','Ferland Mendy|LB|2013|2026|82|2021','Lucas Digne|LB|2011|2026|81|2018','Benjamin Mendy|LB|2011|2022|78|2018','Gaël Clichy|LB|2003|2019|82|2010','Blaise Matuidi|CM|2006|2021|84|2015','Yohan Cabaye|CM|2004|2020|82|2012','Steven Nzonzi|CM|2008|2022|78|2018','Corentin Tolisso|CM|2012|2026|80|2018','Adrien Rabiot|CM|2012|2026|84|2024','Yann M’Vila|CDM|2008|2022|76|2012','Lassana Diarra|CDM|2005|2019|80|2009','Mathieu Valbuena|CAM|2006|2022|80|2012','Florian Thauvin|LW|2012|2026|81|2017','Samir Nasri|CAM|2004|2020|84|2011','Jérémy Ménez|CAM|2005|2020|76|2011','Hatem Ben Arfa|LW|2005|2022|80|2011','Kingsley Coman|LW|2013|2026|84|2020','Moussa Sissoko|CM|2007|2023|76|2016','Dimitri Payet|CAM|2005|2023|84|2016','Florent Malouda|LW|1999|2016|84|2008','Christophe Dugarry|ST|1998|2004|78|1999','Stéphane Guivarc’h|ST|1998|2002|72|1998','Djibril Cissé|ST|2000|2015|80|2004','Louis Saha|ST|1999|2013|82|2005','André-Pierre Gignac|ST|2005|2024|80|2015','Alexandre Lacazette|ST|2010|2026|84|2018','Anthony Martial|ST|2012|2026|82|2016','Randal Kolo Muani|ST|2018|2026|80|2023','Bradley Barcola|LW|2021|2026|84|2025','Michael Olise|RW|2019|2026|87|2025','Désiré Doué|RW|2022|2026|85|2025','Warren Zaïre-Emery|CM|2022|2026|82|2025','Manu Koné|CM|2019|2026|78|2025','Maxence Lacroix|CB|2018|2026|76|2025','Ibrahima Konaté|CB|2018|2026|85|2024']
+});
+Object.assign(MORE,{
+GER:['Tim Wiese|GK|2002|2013|78|2009','Roman Weidenfeller|GK|2002|2018|82|2013','Hans-Jörg Butt|GK|1998|2013|80|2010','Timo Hildebrand|GK|2000|2013|78|2007','Kevin Trapp|GK|2012|2026|79|2023','Bernd Leno|GK|2012|2026|83|2019','Oliver Baumann|GK|2010|2026|80|2024','Alexander Nübel|GK|2015|2026|79|2024','Christian Wörns|CB|1998|2004|82|1999','Thomas Linke|CB|1998|2004|76|2001','Marko Rehmer|CB|1998|2007|74|2002','Matthias Ginter|CB|2012|2026|80|2018','Jonathan Tah|CB|2013|2026|84|2024','Nico Schlotterbeck|CB|2018|2026|82|2024','Robin Koch|CB|2016|2026|76|2022','Thilo Kehrer|CB|2016|2026|76|2020','Waldemar Anton|CB|2015|2026|80|2024','Malick Thiaw|CB|2019|2026|78|2025','Marcel Schmelzer|LB|2008|2020|78|2013','Jonas Hector|LB|2012|2022|80|2017','Robin Gosens|LB|2016|2026|80|2021','David Raum|LB|2018|2026|78|2023','Marcell Jansen|LB|2004|2015|74|2009','Benjamin Henrichs|RB|2015|2026|74|2019','Lukas Klostermann|RB|2014|2026|76|2021','Carsten Ramelow|CDM|1998|2008|76|2002','Torsten Frings|CDM|1998|2011|82|2006','Fabian Ernst|CDM|2001|2011|76|2005','Lars Bender|CDM|2009|2020|78|2013','Emre Can|CDM|2012|2026|80|2018','Robert Andrich|CDM|2013|2026|80|2024','Aleksandar Pavlović|CDM|2022|2026|80|2025','Thomas Hitzlsperger|CM|2000|2013|76|2008','Tim Borowski|CM|2001|2012|76|2006','Christoph Kramer|CM|2011|2022|74|2014','Pascal Groß|CM|2011|2026|82|2023','Maximilian Arnold|CM|2012|2026|78|2018','Julian Draxler|CAM|2011|2025|82|2015','Julian Brandt|CAM|2014|2026|82|2022','Max Kruse|CAM|2010|2021|79|2015','Lars Stindl|CAM|2010|2022|76|2016','Mario Basler|RW|1998|2004|76|1999','Jonas Hofmann|RW|2012|2026|80|2023','Karim Adeyemi|RW|2019|2026|78|2023','Chris Führich|LW|2018|2026|76|2024','Oliver Bierhoff|ST|1998|2003|82|1998','Carsten Jancker|ST|1998|2007|76|2001','Kevin Kurányi|ST|2000|2014|78|2006','Stefan Kießling|ST|2005|2018|80|2012','Timo Werner|ST|2014|2026|83|2020','Kevin Volland|ST|2011|2026|76|2018','Sandro Wagner|ST|2008|2020|74|2018','Deniz Undav|ST|2017|2026|78|2025','Maximilian Beier|ST|2021|2026|76|2025','Tim Kleindienst|ST|2013|2026|74|2024'],
+ESP:['Santiago Cañizares|GK|1998|2008|84|2002','Andrés Palop|GK|2000|2014|78|2008','Diego López|GK|2002|2020|80|2013','Kepa Arrizabalaga|GK|2013|2026|80|2018','Robert Sánchez|GK|2017|2026|76|2024','Raúl Albiol|CB|2004|2021|82|2012','Carlos Marchena|CB|2000|2016|80|2009','Iñigo Martínez|CB|2010|2026|82|2023','Robin Le Normand|CB|2015|2026|82|2024','Dean Huijsen|CB|2022|2026|82|2025','Pau Torres|CB|2016|2026|82|2021','Eric García|CB|2017|2026|78|2022','Nacho Fernández|CB|2010|2026|82|2018','Álvaro Arbeloa|RB|2005|2016|82|2010','Juanfran|RB|2007|2021|80|2016','Jesús Navas|RB|2004|2026|82|2013','Pedro Porro|RB|2018|2026|82|2024','Sergi Roberto|RB|2010|2026|78|2017','Marcos Alonso|LB|2011|2026|80|2018','José Gayà|LB|2014|2026|84|2023','Alejandro Grimaldo|LB|2014|2026|85|2024','Antonio López|LB|1998|2008|76|2003','Marcos Senna|CDM|2002|2014|84|2008','Javi Martínez|CDM|2006|2022|86|2013','Javi García|CDM|2007|2021|76|2012','Martín Zubimendi|CDM|2020|2026|86|2025','Thiago Alcântara|CM|2009|2024|86|2015','Marcos Llorente|CM|2016|2026|83|2021','Mikel Merino|CM|2014|2026|83|2024','Gavi|CM|2021|2026|83|2023','Rubén Baraja|CM|1998|2010|78|2004','David Albelda|CDM|1998|2011|80|2004','Juan Carlos Valerón|CAM|1998|2013|84|2002','Luis García|CAM|1998|2012|80|2005','Isco|CAM|2011|2026|87|2016','Álex Baena|CAM|2019|2026|80|2025','Pedro|RW|2008|2026|86|2011','Joseba Etxeberria|RW|1998|2010|78|2003','Ferran Torres|RW|2017|2026|81|2024','Yeremy Pino|RW|2020|2026|80|2025','Ansu Fati|LW|2019|2026|76|2020','Ayoze Pérez|LW|2012|2026|76|2018','Raúl Tamudo|ST|1998|2012|78|2004','Diego Tristán|ST|1998|2010|82|2002','Fernando Llorente|ST|2006|2021|80|2012','Roberto Soldado|ST|2006|2019|80|2013','Álvaro Negredo|ST|2008|2019|80|2013','Diego Costa|ST|2008|2025|85|2014','Rodrigo Moreno|ST|2010|2026|83|2019','Iago Aspas|ST|2009|2026|84|2018','Gerard Moreno|ST|2010|2026|83|2021','Paco Alcácer|ST|2011|2026|78|2018','Joselu|ST|2008|2025|77|2024','Borja Iglesias|ST|2016|2026|76|2020'],
+ITA:['Christian Abbiati|GK|1998|2016|82|2006','Morgan De Sanctis|GK|1998|2017|80|2010','Marco Amelia|GK|2001|2015|78|2008','Federico Marchetti|GK|2005|2020|78|2012','Salvatore Sirigu|GK|2008|2025|80|2013','Mattia Perin|GK|2011|2026|78|2015','Alex Meret|GK|2015|2026|80|2023','Guglielmo Vicario|GK|2015|2026|82|2024','Marco Carnesecchi|GK|2018|2026|80|2025','Ignazio Abate|RB|2005|2019|80|2013','Mattia De Sciglio|RB|2011|2023|80|2014','Danilo D’Ambrosio|RB|2008|2024|78|2016','Giovanni Di Lorenzo|RB|2013|2026|84|2023','Matteo Darmian|RB|2008|2026|78|2015','Alessandro Florenzi|RB|2011|2023|80|2016','Davide Zappacosta|RB|2012|2026|76|2017','Fabio Grosso|LB|2000|2010|82|2006','Domenico Criscito|LB|2004|2023|80|2012','Leonardo Spinazzola|LB|2012|2026|82|2021','Emerson Palmieri|LB|2013|2026|78|2019','Ricardo Calafiori|LB|2020|2026|84|2025','Andrea Cambiaso|LB|2018|2026|80|2025','Cristiano Biraghi|LB|2013|2026|76|2022','Andrea Ranocchia|CB|2007|2023|78|2011','Francesco Acerbi|CB|2007|2026|84|2022','Alessio Romagnoli|CB|2013|2026|83|2019','Gianluca Mancini|CB|2014|2026|81|2022','Alessandro Buongiorno|CB|2017|2026|82|2025','Federico Gatti|CB|2019|2026|78|2024','Mattia Caldara|CB|2013|2026|76|2018','Daniele Bonera|CB|2000|2015|74|2008','Massimo Ambrosini|CM|1998|2013|82|2005','Riccardo Montolivo|CM|2005|2020|82|2012','Thiago Motta|CM|2000|2018|86|2012','Alberto Aquilani|CM|2002|2016|80|2008','Manuel Locatelli|CM|2016|2026|81|2021','Davide Frattesi|CM|2017|2026|82|2024','Bryan Cristante|CM|2012|2026|80|2022','Samuele Ricci|CM|2019|2026|78|2025','Cristian Brocchi|CM|1998|2012|74|2006','Stefano Fiore|CAM|1998|2008|80|2001','Fabrizio Miccoli|CAM|1998|2015|80|2007','Sebastian Giovinco|CAM|2006|2022|82|2015','Lorenzo Pellegrini|CAM|2014|2026|82|2023','Nicolò Zaniolo|CAM|2017|2026|80|2019','Antonio Candreva|RW|2007|2025|82|2016','Federico Bernardeschi|RW|2012|2026|80|2017','Domenico Berardi|RW|2012|2026|82|2018','Stephan El Shaarawy|LW|2009|2026|80|2013','Mattia Zaccagni|LW|2013|2026|80|2024','Alberto Gilardino|ST|2001|2019|84|2006','Vincenzo Iaquinta|ST|2000|2013|78|2007','Giampaolo Pazzini|ST|2004|2019|80|2011','Marco Borriello|ST|2002|2017|76|2009','Andrea Belotti|ST|2012|2026|82|2017','Giacomo Raspadori|ST|2018|2026|80|2023','Gianluca Scamacca|ST|2016|2026|80|2023','Moise Kean|ST|2016|2026|80|2025'],
+ENG:['Paul Robinson|GK|1998|2012|80|2005','Robert Green|GK|2000|2018|78|2007','Ben Foster|GK|2001|2021|80|2011','Scott Carson|GK|2002|2025|72|2008','Jack Butland|GK|2011|2026|78|2015','Dean Henderson|GK|2016|2026|80|2022','Sam Johnstone|GK|2012|2026|76|2024','James Trafford|GK|2020|2026|78|2025','Gareth Southgate|CB|1998|2006|80|1999','Ledley King|CB|1999|2012|84|2006','Wes Brown|CB|1998|2017|78|2007','Phil Jagielka|CB|2002|2022|80|2013','Joleon Lescott|CB|2002|2019|82|2011','Chris Smalling|CB|2008|2026|82|2016','Phil Jones|CB|2008|2022|76|2012','Eric Dier|CB|2012|2026|80|2018','Conor Coady|CB|2013|2026|78|2019','Joe Gomez|CB|2014|2026|80|2019','Lewis Dunk|CB|2010|2026|80|2023','Fikayo Tomori|CB|2016|2026|82|2022','Marc Guéhi|CB|2019|2026|84|2025','Ezri Konsa|CB|2016|2026|82|2024','Ben White|CB|2016|2026|82|2022','Tyrone Mings|CB|2011|2026|78|2021','Phil Neville|RB|1998|2013|74|2003','Danny Mills|RB|1998|2010|72|2003','Micah Richards|RB|2005|2018|78|2008','Reece James|RB|2018|2026|84|2021','Tino Livramento|RB|2020|2026|80|2025','Wayne Bridge|LB|1999|2014|76|2007','Ashley Young|LB|2004|2024|80|2011','Leighton Baines|LB|2004|2019|82|2013','Danny Rose|LB|2008|2023|78|2017','Kieran Gibbs|LB|2008|2023|76|2013','Ben Chilwell|LB|2015|2026|82|2021','Nico O’Reilly|LB|2023|2026|76|2025','Gareth Barry|CDM|1998|2020|82|2010','Scott Parker|CDM|1998|2017|80|2011','Kalvin Phillips|CDM|2015|2026|80|2021','Jack Wilshere|CM|2008|2020|82|2013','James Ward-Prowse|CM|2011|2026|83|2018','Harry Winks|CM|2014|2026|76|2018','Conor Gallagher|CM|2018|2026|82|2023','Mason Mount|CAM|2017|2026|82|2022','Adam Lallana|CAM|2006|2026|82|2015','Ross Barkley|CAM|2011|2026|80|2015','Dele Alli|CAM|2013|2026|86|2017','James Maddison|CAM|2014|2026|84|2023','Eberechi Eze|CAM|2016|2026|84|2025','Morgan Rogers|CAM|2020|2026|82|2025','Theo Walcott|RW|2006|2021|82|2008','Aaron Lennon|RW|2004|2020|80|2008','Shaun Wright-Phillips|RW|2000|2015|78|2005','Jarrod Bowen|RW|2014|2026|84|2023','Anthony Gordon|LW|2017|2026|83|2025','Callum Hudson-Odoi|LW|2017|2026|78|2019','Andy Cole|ST|1998|2008|82|1999','Teddy Sheringham|ST|1998|2008|80|1999','Robbie Fowler|ST|1998|2012|80|1999','Kevin Phillips|ST|1998|2013|80|2000','Darren Bent|ST|2002|2017|80|2010','Danny Welbeck|ST|2008|2026|80|2012','Daniel Sturridge|ST|2008|2020|84|2014','Andy Carroll|ST|2006|2021|76|2011','Ivan Toney|ST|2013|2026|83|2024','Dominic Calvert-Lewin|ST|2016|2026|80|2020','Tammy Abraham|ST|2015|2026|80|2019','Callum Wilson|ST|2011|2026|80|2021','Eddie Nketiah|ST|2017|2026|76|2022']
+});
+Object.assign(MORE,{
+NED:['Michel Vorm|GK|2006|2022|80|2012','Tim Krul|GK|2006|2026|78|2013','Sander Westerveld|GK|1998|2008|76|2000','Justin Bijlow|GK|2017|2026|78|2022','Mark Flekken|GK|2011|2026|79|2024','Joris Mathijsen|CB|2000|2012|82|2008','John Heitinga|CB|2002|2017|80|2010','André Ooijer|CB|1998|2012|78|2006','Bruno Martins Indi|CB|2011|2022|76|2015','Micky van de Ven|CB|2019|2026|84|2025','Jurriën Timber|CB|2019|2026|84|2023','Sven Botman|CB|2019|2026|82|2023','Michael Reiziger|RB|1998|2007|78|2000','Mario Melchiot|RB|1998|2009|76|2003','Khalid Boulahrouz|RB|2003|2014|76|2006','Joël Veltman|RB|2013|2026|76|2018','Jeremie Frimpong|RB|2018|2026|84|2024','Arthur Numan|LB|1998|2003|78|1999','Patrick van Aanholt|LB|2008|2024|76|2018','Jetro Willems|LB|2011|2023|76|2016','Tyrell Malacia|LB|2017|2026|76|2022','Ian Maatsen|LB|2019|2026|78|2024','Marten de Roon|CDM|2010|2026|78|2021','Jerdy Schouten|CDM|2014|2026|78|2024','Jordy Clasie|CDM|2011|2022|76|2016','Teun Koopmeiners|CM|2016|2026|84|2023','Davy Klaassen|CM|2011|2026|80|2016','Ibrahim Afellay|RW|2004|2019|78|2011','Andy van der Meyde|RW|1998|2010|76|2003','Quincy Promes|RW|2012|2024|80|2018','Ryan Babel|LW|2005|2024|78|2008','Eljero Elia|LW|2006|2019|74|2010','Steven Bergwijn|LW|2015|2026|80|2020','Noa Lang|LW|2017|2026|80|2024','Pierre van Hooijdonk|ST|1998|2005|78|1999','Luuk de Jong|ST|2009|2026|80|2018','Bas Dost|ST|2008|2022|80|2016','Joshua Zirkzee|ST|2019|2026|78|2024','Vincent Janssen|ST|2013|2026|72|2016'],
+POR:['Ricardo Pereira|GK|1998|2012|78|2004','Eduardo|GK|2003|2020|76|2016','Anthony Lopes|GK|2012|2023|78|2018','José Sá|GK|2014|2026|79|2023','Rui Silva|GK|2013|2026|80|2024','Jorge Andrade|CB|2000|2012|78|2004','Fernando Meira|CB|1998|2010|76|2004','Ricardo Costa|CB|2002|2016|76|2008','Rolando|CB|2006|2020|78|2012','António Silva|CB|2022|2026|84|2025','Tiago Djaló|CB|2018|2026|76|2024','Miguel|RB|2000|2012|78|2005','José Bosingwa|RB|2003|2016|82|2009','Abel Xavier|RB|1998|2009|72|2002','Nélson Semedo|RB|2014|2026|82|2018','Diogo Dalot|RB|2017|2026|82|2024','Nuno Valente|LB|1998|2009|78|2004','Eliseu|LB|2003|2020|76|2011','Mário Rui|LB|2012|2026|78|2019','Danilo Pereira|CDM|2012|2026|80|2019','Miguel Veloso|CDM|2005|2020|78|2012','Petit|CDM|2000|2013|74|2008','Raul Meireles|CM|2004|2019|84|2011','João Mário|CM|2012|2026|82|2016','Hugo Viana|CM|2001|2015|76|2005','Paulo Sousa|CM|1998|2003|80|1999','Simão Sabrosa|RW|1998|2014|84|2004','Sérgio Conceição|RW|1998|2007|82|1999','Vieirinha|RW|2007|2021|76|2014','Gelson Martins|RW|2014|2026|78|2018','Francisco Conceição|RW|2021|2026|80|2025','Pedro Gonçalves|CAM|2017|2026|82|2022','Rafa Silva|LW|2013|2026|82|2021','Trincão|LW|2018|2026|78|2022','Ricardo Horta|LW|2013|2026|78|2021','Gonçalo Guedes|RW|2014|2026|80|2018','João Pinto|ST|1998|2005|76|1999','Hugo Almeida|ST|2003|2018|76|2010','Liedson|ST|2000|2013|80|2008','Éder|ST|2008|2021|74|2016'],
+BEL:['Koen Casteels|GK|2010|2026|82|2024','Matz Sels|GK|2010|2026|78|2024','Jean-François Gillet|GK|1998|2015|76|2008','Timothy Castagne|RB|2014|2026|80|2022','Thomas Foket|RB|2011|2026|72|2019','Jason Denayer|CB|2013|2026|76|2020','Dedryck Boyata|CB|2009|2026|76|2018','Zeno Debast|CB|2020|2026|80|2025','Arthur Theate|CB|2019|2026|78|2024','Wout Faes|CB|2016|2026|74|2023','Brandon Mechele|CB|2012|2026|76|2022','Nicolas Lombaerts|CB|2005|2020|74|2012','Olivier Deschacht|LB|2000|2018|74|2007','Jordan Lukaku|LB|2013|2026|74|2018','Timmy Simons|CDM|1998|2016|78|2008','Steven Defour|CM|2006|2022|82|2012','Hans Vanaken|CAM|2011|2026|80|2021','Charles De Ketelaere|CAM|2019|2026|80|2024','Marc Wilmots|CAM|1998|2003|82|1998','Kevin Mirallas|RW|2007|2022|80|2013','Nacer Chadli|LW|2009|2022|80|2013','Thorgan Hazard|LW|2011|2026|80|2019','Adnan Januzaj|RW|2011|2026|76|2014','Emile Mpenza|ST|1998|2009|76|2001','Mbo Mpenza|ST|1998|2008|74|2002','Wesley Sonck|ST|2000|2012|72|2004','Christian Benteke|ST|2009|2026|80|2013','Divock Origi|ST|2013|2026|78|2019','Loïs Openda|ST|2018|2026|80|2024'],
+CRO:['Lovre Kalinić|GK|2008|2024|78|2018','Ivor Pandur|GK|2018|2026|74|2025','Nediljko Labrović|GK|2018|2026|74|2025','Dario Šimić|CB|1998|2008|84|1999','Igor Tudor|CB|1998|2008|82|2001','Domagoj Vida|CB|2008|2022|80|2018','Duje Ćaleta-Car|CB|2014|2026|80|2022','Josip Šutalo|CB|2019|2026|78|2025','Gordon Schildenfeld|CB|2008|2018|74|2012','Šime Vrsaljko|RB|2010|2022|82|2018','Josip Stanišić|RB|2018|2026|80|2024','Robert Jarni|LB|1998|2002|80|1998','Ivan Strinić|LB|2008|2022|78|2014','Danijel Pranjić|LB|2002|2016|78|2011','Borna Barišić|LB|2014|2026|78|2022','Milan Badelj|CDM|2008|2022|78|2016','Igor Bišćan|CDM|1998|2012|76|2003','Ognjen Vukojević|CM|2005|2018|76|2011','Petar Sučić|CM|2021|2026|78|2025','Niko Kranjčar|CAM|2002|2016|80|2008','Nikola Vlašić|CAM|2015|2026|80|2022','Martin Baturina|CAM|2019|2026|78|2025','Luka Ivanušec|CAM|2017|2026|76|2024','Ante Rebić|LW|2012|2026|80|2018','Mislav Oršić|LW|2014|2026|78|2022','Marko Pjaca|LW|2012|2026|76|2016','Alen Bokšić|ST|1998|2002|78|1998','Goran Vlaović|ST|1998|2003|76|1998','Dado Pršo|ST|1998|2010|78|2004','Eduardo da Silva|ST|2003|2021|78|2009','Nikola Kalinić|ST|2009|2022|82|2016','Bruno Petković|ST|2012|2026|76|2021','Marko Livaja|ST|2011|2026|76|2024','Ante Budimir|ST|2013|2026|76|2024']
+});
+Object.assign(MORE,{
+URU:['Martín Silva|GK|2005|2022|76|2016','Martín Campaña|GK|2012|2026|74|2024','Guillermo Varela|RB|2013|2026|74|2019','Jorge Fucile|LB|2003|2018|72|2010','Mathías Olivera|LB|2017|2026|80|2024','Sebastián Coates|CB|2009|2026|78|2018','Mauricio Victorino|CB|2005|2018|74|2011','Santiago Bueno|CB|2018|2026|76|2025','Egidio Arévalo Ríos|CDM|2003|2020|76|2011','Walter Gargano|CDM|2005|2022|78|2011','Diego Pérez|CDM|2002|2018|76|2010','Manuel Ugarte|CDM|2020|2026|82|2025','Nahitan Nández|CM|2014|2026|80|2019','Álvaro González|CM|2008|2024|76|2013','Sebastián Eguren|CM|2002|2016|76|2010','Carlos Sánchez|CM|2002|2017|76|2008','Nicolás de la Cruz|CAM|2016|2026|80|2022','Gastón Ramírez|CAM|2009|2024|76|2013','Nicolás Olivera|CAM|1998|2004|74|2001','Cristian Rodríguez|RW|2003|2022|82|2014','Facundo Torres|RW|2018|2026|78|2023','Maximiliano Araújo|LW|2018|2026|76|2024','Brian Rodríguez|LW|2018|2026|74|2023','Sebastián Abreu|ST|1998|2015|78|2008','Darío Silva|ST|1998|2009|78|2002','Abel Hernández|ST|2007|2024|76|2013','Cristhian Stuani|ST|2005|2024|78|2018','Jonathan Rodríguez|ST|2011|2026|76|2018','Federico Viñas|ST|2018|2026|74|2024'],
+COL:['Óscar Córdoba|GK|1998|2008|80|2000','Kevin Mier|GK|2018|2026|74|2024','Álvaro Montero|GK|2013|2026|74|2023','Iván Córdoba|CB|1998|2012|84|2003','Carlos Valdés|CB|2005|2020|74|2014','Jeison Murillo|CB|2012|2026|76|2019','Jhon Lucumí|CB|2016|2026|78|2024','Carlos Cuesta|CB|2017|2026|76|2023','Stefan Medina|RB|2012|2026|74|2018','Pablo Armero|LB|2005|2020|76|2014','Frank Fabra|LB|2012|2026|72|2019','Deiver Machado|LB|2014|2026|72|2022','Abel Aguilar|CDM|2004|2019|74|2011','Mateus Uribe|CM|2012|2026|80|2022','Fredy Guarín|CM|2005|2021|82|2013','Macnelly Torres|CAM|2002|2017|74|2010','Edwin Cardona|CAM|2011|2026|74|2016','Juan Fernando Quintero|CAM|2012|2026|80|2016','Jorge Carrascal|CAM|2017|2026|74|2023','Yaser Asprilla|CAM|2021|2026|76|2025','Luis Sinisterra|LW|2017|2026|80|2022','Adolfo Valencia|ST|1998|2002|74|1998','Víctor Aristizábal|ST|1998|2003|76|1998','Hugo Rodallega|ST|2005|2022|76|2011','Carlos Bacca|ST|2007|2026|80|2016','Luis Muriel|ST|2008|2026|82|2018','Miguel Borja|ST|2013|2026|74|2018','Jhon Córdoba|ST|2012|2026|76|2022','Alfredo Morelos|ST|2015|2026|78|2018','Jhon Durán|ST|2021|2026|78|2024'],
+SWE:['Magnus Hedman|GK|1998|2006|78|2001','Karl-Johan Johnsson|GK|2008|2026|76|2018','Kristoffer Nordfeldt|GK|2009|2026|74|2019','Viktor Johansson|GK|2018|2026|74|2025','Teddy Lučić|CB|1998|2010|78|2004','Johan Mjällby|CB|1998|2008|76|2004','Michael Svensson|CB|1998|2008|74|2002','Petter Hansson|CB|2002|2012|74|2007','Pontus Jansson|CB|2010|2026|78|2022','Isak Hien|CB|2018|2026|78|2025','Carl Starfelt|CB|2016|2026|76|2024','Mikael Nilsson|RB|1998|2008|78|2002','Erik Edman|LB|2000|2012|76|2005','Martin Olsson|LB|2006|2022|76|2012','Gabriel Gudmundsson|LB|2017|2026|76|2024','Sebastian Larsson|CM|2003|2025|78|2014','Pontus Wernbloom|CM|2007|2022|78|2014','Rasmus Elm|CM|2006|2022|78|2013','Mattias Svanberg|CM|2017|2026|76|2022','Jesper Karlström|CM|2013|2026|74|2021','Benjamin Nygren|CAM|2019|2026|76|2025','Mattias Jonson|LW|1998|2008|74|2003','Anthony Elanga|RW|2019|2026|80|2025','Robin Quaison|ST|2013|2026|76|2019','Ola Toivonen|ST|2007|2022|76|2015','Kennedy Bakircioglu|ST|1998|2012|70|2005'],
+DEN:['Stephan Andersen|GK|2000|2022|74|2012','Anders Lindegaard|GK|2004|2022|74|2011','Jonas Lössl|GK|2008|2026|76|2018','Frederik Rønnow|GK|2012|2026|76|2022','Mads Hermansen|GK|2018|2026|78|2025','Per Krøldrup|CB|2000|2012|76|2007','René Henriksen|CB|1998|2008|74|2003','Mathias Jørgensen|CB|2012|2026|76|2018','Thomas Helveg|RB|1998|2006|78|2000','Lars Jacobsen|RB|2000|2012|74|2008','Jens Stryger Larsen|RB|2011|2026|76|2018','Rasmus Kristensen|RB|2017|2026|76|2022','Alexander Bah|RB|2016|2026|76|2024','Jan Heintze|LB|1998|2002|76|1998','Nicolai Boilesen|LB|2011|2026|74|2018','Victor Kristiansen|LB|2020|2026|74|2025','Christian Poulsen|CDM|2001|2016|78|2007','William Kvist|CDM|2005|2022|74|2012','Christian Nørgaard|CDM|2012|2026|80|2023','Mathias Jensen|CM|2013|2026|78|2023','Lasse Schøne|CM|2007|2023|76|2016','Michael Silberbauer|CM|2000|2013|72|2007','Robert Skov|RW|2014|2026|78|2023','Andreas Skov Olsen|RW|2017|2026|76|2022','Anders Dreyer|LW|2015|2026|78|2025','Mohamed Daramy|LW|2018|2026|76|2024','Ebbe Sand|ST|1998|2006|78|2000','Miklos Molnar|ST|1998|2006|72|2000','Martin Braithwaite|ST|2010|2026|76|2019','Kasper Dolberg|ST|2015|2026|78|2022','Jonas Wind|ST|2016|2026|78|2022']
+});
+const NEWC2={SUI:'Szwajcaria',TUR:'Turcja',SRB:'Serbia',CZE:'Czechy',MEX:'Meksyk',JPN:'Japonia',NOR:'Norwegia',MAR:'Maroko'};
+Object.assign(MORE,{
+SUI:['Yann Sommer|GK|2007|2026|86|2022','Gregor Kobel|GK|2015|2026|88|2024','Diego Benaglio|GK|2002|2018|80|2012','Roman Bürki|GK|2009|2026|80|2019','Pascal Zuberbühler|GK|1998|2010|78|2006','Manuel Akanji|CB|2013|2026|87|2023','Nico Elvedi|CB|2015|2026|82|2022','Fabian Schär|CB|2010|2026|80|2017','Philippe Senderos|CB|2002|2016|78|2006','Johan Djourou|CB|2005|2021|74|2008','Stéphane Grichting|CB|2003|2017|74|2009','Stephan Lichtsteiner|RB|2005|2020|83|2012','Silvan Widmer|RB|2011|2026|76|2018','Ricardo Rodríguez|LB|2010|2026|83|2017','Ludovic Magnin|LB|1998|2011|76|2005','Gökhan Inler|CDM|2003|2020|82|2011','Granit Xhaka|CM|2009|2026|87|2024','Remo Freuler|CM|2010|2026|82|2022','Denis Zakaria|CDM|2015|2026|82|2021','Djibril Sow|CM|2014|2026|78|2022','Valon Behrami|CM|2003|2021|78|2012','Ardon Jashari|CM|2020|2026|78|2025','Hakan Yakin|CAM|1998|2012|78|2004','Xherdan Shaqiri|RW|2009|2026|84|2013','Tranquillo Barnetta|LW|2003|2018|78|2008','Ruben Vargas|LW|2017|2026|80|2024','Dan Ndoye|LW|2018|2026|78|2025','Noah Okafor|LW|2018|2026|76|2023','Alexander Frei|ST|2000|2013|84|2006','Breel Embolo|ST|2014|2026|80|2020','Haris Seferovic|ST|2010|2022|76|2015','Eren Derdiyok|ST|2006|2021|74|2010','Kubilay Türkyilmaz|ST|1998|2001|72|1998'],
+TUR:['Rüştü Reçber|GK|1998|2012|86|2002','Volkan Demirel|GK|2000|2017|78|2009','Uğurcan Çakır|GK|2015|2026|82|2024','Mert Günok|GK|2008|2026|76|2022','Altay Bayındır|GK|2016|2026|76|2024','Alpay Özalan|CB|1998|2008|78|2002','Bülent Korkmaz|CB|1998|2005|76|2002','Ömer Toprak|CB|2009|2022|78|2015','Çağlar Söyüncü|CB|2014|2026|82|2019','Merih Demiral|CB|2016|2026|82|2022','Kaan Ayhan|CB|2012|2026|76|2022','Hakan Ünsal|RB|1998|2008|76|2002','Zeki Çelik|RB|2017|2026|78|2022','Mert Müldür|RB|2016|2026|74|2024','Ümit Özat|LB|1998|2008|76|2002','Caner Erkin|LB|2007|2021|76|2014','Ferdi Kadıoğlu|LB|2018|2026|82|2024','Tugay Kerimoğlu|CM|1998|2008|80|2002','Emre Belözoğlu|CM|1998|2022|84|2004','Hamit Altıntop|CM|2001|2017|82|2008','Mehmet Topal|CDM|2004|2019|74|2010','Salih Özcan|CDM|2016|2026|76|2023','İsmail Yüksek|CDM|2017|2026|76|2024','Orkun Kökçü|CM|2018|2026|82|2024','Yıldıray Baştürk|CAM|1998|2008|78|2002','Tuncay Şanlı|CAM|2000|2012|82|2008','Arda Turan|CAM|2005|2020|86|2013','Hakan Çalhanoğlu|CAM|2011|2026|86|2024','Arda Güler|CAM|2022|2026|84|2025','Hasan Şaş|LW|1998|2008|78|2002','Kenan Yıldız|LW|2021|2026|84|2025','Cengiz Ünder|RW|2015|2026|80|2018','Hakan Şükür|ST|1998|2008|82|2000','Nihat Kahveci|ST|1998|2011|82|2005','Burak Yılmaz|ST|2005|2025|82|2018','Cenk Tosun|ST|2010|2026|78|2018'],
+SRB:['Vladimir Stojković|GK|2002|2018|76|2010','Vanja Milinković-Savić|GK|2015|2026|80|2024','Predrag Rajković|GK|2013|2026|78|2023','Nemanja Vidić|CB|2000|2014|90|2009','Matija Nastasić|CB|2010|2026|78|2013','Neven Subotić|CB|2007|2022|78|2011','Nikola Milenković|CB|2016|2026|82|2023','Strahinja Pavlović|CB|2018|2026|78|2024','Uroš Spajić|CB|2012|2026|72|2018','Branislav Ivanović|RB|2004|2019|86|2012','Antonio Rukavina|RB|2006|2019|74|2011','Aleksandar Kolarov|LB|2004|2021|84|2012','Filip Kostić|LB|2012|2026|82|2022','Dejan Stanković|CM|1998|2013|86|2007','Nemanja Matić|CDM|2007|2026|86|2015','Nemanja Gudelj|CDM|2010|2026|78|2022','Zdravko Kuzmanović|CM|2005|2019|76|2012','Sergej Milinković-Savić|CM|2014|2026|86|2019','Saša Lukić|CM|2014|2026|78|2022','Ivan Ilić|CM|2019|2026|76|2025','Dušan Tadić|CAM|2010|2026|84|2018','Adem Ljajić|CAM|2008|2026|80|2013','Mijat Gaćinović|CAM|2013|2026|74|2018','Miloš Krasić|RW|2003|2014|80|2009','Zoran Tošić|RW|2006|2020|76|2010','Andrija Živković|RW|2013|2026|74|2019','Veljko Birmančević|RW|2018|2026|74|2024','Predrag Mijatović|CAM|1998|2002|80|1998','Savo Milošević|ST|1998|2006|80|1999','Mateja Kežman|ST|1998|2010|82|2003','Nikola Žigić|ST|2002|2016|76|2010','Luka Jović|ST|2014|2026|80|2019','Aleksandar Mitrović|ST|2012|2026|84|2023','Dušan Vlahović|ST|2017|2026|86|2022'],
+CZE:['Petr Čech|GK|1998|2019|93|2008','Tomáš Vaclík|GK|2008|2026|78|2017','Tomáš Koubek|GK|2009|2026|72|2019','Jindřich Staněk|GK|2013|2026|80|2025','Antonín Kinský|GK|2018|2026|74|2025','Tomáš Ujfaluši|CB|1998|2012|82|2006','Roman Hubník|CB|2004|2019|72|2012','Tomáš Sivok|CB|2004|2020|74|2011','Ladislav Krejčí|CB|2015|2026|76|2024','David Zima|CB|2018|2026|74|2023','Zdeněk Grygera|RB|1998|2012|80|2006','Theodor Gebre Selassie|RB|2008|2021|76|2014','Vladimír Coufal|RB|2012|2026|80|2022','Pavel Kadeřábek|RB|2011|2026|78|2017','Marek Jankulovski|LB|1998|2011|84|2006','Michal Kadlec|LB|2006|2020|76|2013','David Jurásek|LB|2019|2026|76|2024','Tomáš Galásek|CDM|1998|2013|76|2006','Radoslav Kováč|CDM|1999|2017|76|2008','Tomáš Souček|CDM|2014|2026|84|2022','Tomáš Holeš|CDM|2012|2026|76|2022','Pavel Nedvěd|CM|1998|2006|92|2003','Jaroslav Plašil|CM|2001|2016|78|2010','Jan Polák|CM|2000|2014|76|2008','Vladimír Darida|CM|2010|2026|78|2017','Lukáš Provod|CM|2015|2026|76|2024','Tomáš Rosický|CAM|1998|2016|86|2006','Antonín Barák|CAM|2014|2026|78|2023','Karel Poborský|RW|1998|2008|82|2000','Libor Sionko|RW|2000|2013|74|2008','Václav Černý|RW|2016|2026|78|2025','Adam Hložek|LW|2019|2026|76|2024','Jan Koller|ST|1998|2011|84|2003','Milan Baroš|ST|1998|2015|84|2004','Vratislav Lokvenc|ST|1998|2008|74|2001','Marek Heinz|ST|2000|2012|74|2005','Matěj Vydra|ST|2010|2026|76|2017','Patrik Schick|ST|2014|2026|86|2024']
+});
+Object.assign(MORE,{
+MEX:['Jorge Campos|GK|1998|2003|80|1998','Oswaldo Sánchez|GK|1998|2014|78|2005','Guillermo Ochoa|GK|2004|2026|84|2014','Luis Malagón|GK|2019|2026|76|2025','Carlos Acevedo|GK|2018|2026|74|2025','Rafael Márquez|CB|1998|2018|88|2006','Héctor Moreno|CB|2007|2022|78|2014','Francisco Rodríguez|CB|2002|2016|76|2008','Diego Reyes|CB|2011|2026|76|2018','Néstor Araujo|CB|2010|2026|76|2021','César Montes|CB|2015|2026|78|2023','Johan Vásquez|CB|2017|2026|76|2024','Israel Reyes|CB|2019|2026|74|2025','Paul Aguilar|RB|2005|2022|74|2013','Miguel Layún|RB|2007|2022|76|2015','Jorge Sánchez|RB|2017|2026|74|2022','Carlos Salcido|LB|2000|2017|80|2008','Jorge Torres Nilo|LB|2007|2020|72|2012','Jesús Gallardo|LB|2013|2026|74|2021','Gerardo Arteaga|LB|2018|2026|74|2022','Gerardo Torrado|CDM|1998|2015|78|2006','Edson Álvarez|CDM|2016|2026|84|2023','Pável Pardo|CM|1998|2012|80|2003','Andrés Guardado|CM|2005|2026|84|2014','Héctor Herrera|CM|2010|2026|82|2016','Jonathan dos Santos|CM|2008|2026|78|2017','Luis Chávez|CM|2013|2026|76|2024','Cuauhtémoc Blanco|CAM|1998|2016|82|2003','Giovani dos Santos|CAM|2007|2022|80|2010','Orbelín Pineda|CAM|2012|2026|76|2022','Carlos Vela|RW|2005|2024|85|2013','Jesús Corona|RW|2010|2026|80|2016','Hirving Lozano|RW|2014|2026|84|2018','Roberto Alvarado|RW|2017|2026|76|2023','Francisco Palencia|LW|1998|2008|76|2002','Alexis Vega|LW|2016|2026|78|2022','Luis Hernández|ST|1998|2004|80|1998','Jared Borgetti|ST|1998|2012|82|2003','Omar Bravo|ST|2001|2014|78|2006','Oribe Peralta|ST|2005|2020|80|2014','Javier Hernández|ST|2006|2026|86|2011','Raúl Jiménez|ST|2009|2026|84|2019','Santiago Giménez|ST|2018|2026|84|2025','Henry Martín|ST|2014|2026|78|2023'],
+JPN:['Yoshikatsu Kawaguchi|GK|1998|2015|78|2004','Seigo Narazaki|GK|1998|2018|76|2006','Eiji Kawashima|GK|2004|2026|76|2018','Shuichi Gonda|GK|2008|2026|76|2018','Zion Suzuki|GK|2021|2026|78|2025','Maya Yoshida|CB|2009|2026|78|2018','Tomoaki Makino|CB|2005|2026|74|2018','Ko Itakura|CB|2016|2026|80|2024','Hiroki Ito|CB|2017|2026|78|2025','Koki Machida|CB|2017|2026|76|2025','Yuta Nakayama|CB|2016|2026|74|2023','Atsuto Uchida|RB|2007|2021|76|2011','Hiroki Sakai|RB|2012|2026|76|2018','Takehiro Tomiyasu|RB|2016|2026|82|2022','Yuto Nagatomo|LB|2007|2026|80|2014','Makoto Hasebe|CDM|2002|2024|80|2016','Wataru Endo|CDM|2012|2026|82|2024','Junichi Inamoto|CM|1998|2010|76|2002','Yasuhito Endo|CM|1998|2020|80|2010','Hidemasa Morita|CM|2017|2026|80|2024','Reo Hatate|CM|2017|2026|80|2024','Ao Tanaka|CM|2016|2026|78|2025','Hidetoshi Nakata|CAM|1998|2006|86|2000','Shunsuke Nakamura|CAM|1998|2018|84|2006','Shinji Kagawa|CAM|2006|2026|84|2012','Keisuke Honda|CAM|2007|2021|82|2011','Takumi Minamino|CAM|2012|2026|82|2019','Daichi Kamada|CAM|2015|2026|82|2022','Takefusa Kubo|RW|2019|2026|84|2024','Ritsu Doan|RW|2016|2026|80|2024','Junya Ito|RW|2012|2026|80|2023','Kaoru Mitoma|LW|2016|2026|84|2023','Masashi Nakayama|ST|1998|2008|72|1998','Atsushi Yanagisawa|ST|1998|2008|72|2002','Naohiro Takahara|ST|1998|2012|76|2002','Yoshito Okubo|ST|2002|2020|74|2011','Shinji Okazaki|ST|2005|2026|80|2016','Yuya Osako|ST|2012|2026|76|2017','Kyogo Furuhashi|ST|2018|2026|82|2023','Ayase Ueda|ST|2017|2026|78|2025'],
+NOR:['Frode Olsen|GK|1998|2008|74|2000','Rune Almenning Jarstein|GK|2004|2022|76|2018','Ørjan Nyland|GK|2008|2026|76|2020','Henning Berg|CB|1998|2004|80|1999','Ronny Johnsen|CB|1998|2002|78|1998','Brede Hangeland|CB|2002|2016|82|2011','Stefan Strandberg|CB|2009|2026|74|2018','Kristoffer Ajer|CB|2016|2026|80|2024','Leo Østigård|CB|2017|2026|74|2023','Vegard Heggem|RB|1998|2002|74|1998','Omar Elabdellaoui|RB|2010|2023|74|2016','Julian Ryerson|RB|2016|2026|80|2024','Stig Inge Bjørnebye|LB|1998|2000|76|1998','John Arne Riise|LB|1998|2014|84|2006','Birger Meling|LB|2014|2026|74|2022','Sander Berge|CM|2016|2026|80|2022','Stefan Johansen|CM|2009|2026|74|2016','Fredrik Aursnes|CM|2015|2026|80|2024','Patrik Berg|CM|2017|2026|76|2024','Morten Thorsby|CM|2014|2026|76|2022','Martin Ødegaard|CAM|2014|2026|90|2024','Mats Møller Dæhli|CAM|2012|2026|74|2018','Morten Gamst Pedersen|LW|2001|2016|82|2007','Mohamed Elyounoussi|LW|2013|2026|78|2022','Antonio Nusa|LW|2022|2026|78|2025','Oscar Bobb|RW|2021|2026|80|2025','Ole Gunnar Solskjær|ST|1998|2007|84|1999','Tore André Flo|ST|1998|2008|78|1998','John Carew|ST|1998|2012|78|2001','Steffen Iversen|ST|1998|2008|76|2000','Joshua King|ST|2009|2025|80|2016','Alexander Sørloth|ST|2013|2026|84|2024','Jørgen Strand Larsen|ST|2018|2026|80|2025','Erling Haaland|ST|2016|2026|95|2024'],
+MAR:['Yassine Bounou|GK|2010|2026|87|2023','Munir Mohamedi|GK|2007|2024|76|2017','Nadir Lamyaghri|GK|2005|2022|72|2012','Ahmed Reda Tagnaouti|GK|2012|2026|72|2022','Nouredine Naybet|CB|1998|2008|80|2002','Talal El Karkouri|CB|1998|2012|78|2004','Medhi Benatia|CB|2005|2021|86|2014','Romain Saïss|CB|2009|2026|80|2019','Nayef Aguerd|CB|2014|2026|80|2023','Yunis Abdelhamid|CB|2007|2026|74|2018','Achraf Dari|CB|2015|2026|72|2022','Achraf Hakimi|RB|2016|2026|89|2024','Noussair Mazraoui|LB|2016|2026|82|2024','Sofyan Amrabat|CDM|2012|2026|82|2022','Karim El Ahmadi|CM|2004|2021|76|2014','Azzedine Ounahi|CM|2018|2026|78|2023','Neil El Aynaoui|CM|2018|2026|78|2025','Mustapha Hadji|CAM|1998|2008|80|1999','Mbark Boussoufa|CAM|2002|2022|78|2011','Younès Belhanda|CAM|2008|2026|78|2013','Adel Taarabt|CAM|2007|2026|80|2011','Brahim Díaz|CAM|2016|2026|84|2025','Bilal El Khannouss|CAM|2021|2026|78|2025','Hakim Ziyech|RW|2012|2026|86|2018','Nordin Amrabat|RW|2007|2023|78|2015','Sofiane Boufal|LW|2011|2026|78|2017','Abde Ezzalzouli|LW|2019|2026|78|2024','Salaheddine Bassir|ST|1998|2003|74|1998','Marouane Chamakh|ST|2002|2020|78|2010','Youssef El-Arabi|ST|2008|2026|76|2019','Youssef En-Nesyri|ST|2015|2026|80|2022','Ayoub El Kaabi|ST|2012|2026|76|2022','Soufiane Rahimi|ST|2019|2026|76|2025']
+});
+/* scalenie nowych zawodników i krajów z bazą (bez duplikatów nazwisk) */
+for(const c in NEWC2){COUNTRIES[c]=NEWC2[c];if(!CODES.includes(c))CODES.push(c);}
+{const seen=new Set(PLAYERS.map(p=>p.n));
+ for(const c in MORE){for(const s of MORE[c]){const a=s.split('|');if(seen.has(a[0]))continue;seen.add(a[0]);PLAYERS.push({n:a[0],pos:a[1],g:GROUP[a[1]]||'MID',c,from:+a[2],to:+a[3],peak:+a[4],py:+a[5]});}}}
+/* ===== Rdzeń: narzędzia, formacje, karty, packi, ocena składu, zapis ===== */
+GROUP.LM=GROUP.RM='MID';
+const $=s=>document.querySelector(s);
+let RNG=Math.random;
+const rnd=n=>Math.floor(RNG()*n);
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function withRng(seed,fn){const o=RNG;RNG=mulberry(seed);try{return fn();}finally{RNG=o;}}
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const wpick=items=>{let t=items.reduce((s,i)=>s+i.w,0),r=RNG()*t;for(const i of items){if((r-=i.w)<0)return i;}return items[items.length-1];};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MINY=1998,MAXY=2026;
+
+const FORMS={
+'4-3-3':[['GK',50,90],['LB',14,70],['CB',38,75],['CB',62,75],['RB',86,70],['CM',27,52],['CDM',50,56],['CM',73,52],['LW',17,25],['ST',50,19],['RW',83,25]],
+'4-4-2':[['GK',50,90],['LB',14,70],['CB',38,75],['CB',62,75],['RB',86,70],['LM',14,49],['CM',38,54],['CM',62,54],['RM',86,49],['ST',37,21],['ST',63,21]],
+'4-2-3-1':[['GK',50,90],['LB',14,70],['CB',38,75],['CB',62,75],['RB',86,70],['CDM',36,57],['CDM',64,57],['LW',16,36],['CAM',50,38],['RW',84,36],['ST',50,17]],
+'3-5-2':[['GK',50,90],['CB',24,74],['CB',50,77],['CB',76,74],['LM',9,50],['CM',30,55],['CDM',50,60],['CM',70,55],['RM',91,50],['ST',37,21],['ST',63,21]],
+'3-4-3':[['GK',50,90],['CB',24,74],['CB',50,77],['CB',76,74],['LM',14,52],['CM',38,55],['CM',62,55],['RM',86,52],['LW',17,24],['ST',50,18],['RW',83,24]],
+'5-3-2':[['GK',50,90],['LB',9,64],['CB',29,75],['CB',50,78],['CB',71,75],['RB',91,64],['CM',27,48],['CDM',50,53],['CM',73,48],['ST',37,21],['ST',63,21]]
+};
+const NEIGH={CB:['CDM'],CDM:['CB','CM'],CM:['CDM','CAM','LM','RM'],CAM:['CM','LW','RW','ST'],LM:['LW','CM','RM','LB'],RM:['RW','CM','LM','RB'],LW:['LM','RW','ST','CAM'],RW:['RM','LW','ST','CAM'],ST:['CAM','LW','RW'],LB:['CB','LM'],RB:['CB','RM']};
+const TIERN={bronze:'Brąz',silver:'Srebro',gold:'Złoto',rare:'Rare',toty:'TOTY',icon:'Ikona',wc:'Mundial',euro:'Euro'};
+const MUTS={
+ boost:{label:'Turbo +2',d:2,tip:'+2 do oceny'},mega:{label:'Mega +4',d:4,tip:'+4 do oceny'},
+ wild:{label:'Wildcard',d:0,tip:'gra na każdej pozycji w polu bez kary'},
+ clutch:{label:'Clutch',d:0,tip:'+4 w meczach pucharowych'},
+ curse:{label:'Przeklęty −3',d:-3,tip:'−3 do oceny'},
+ captain:{label:'Kapitan',d:0,tip:'+1 do ocen reszty składu (maks. +2 od dwóch kapitanów)'},
+ young:{label:'Młodzik',d:-2,tip:'−2 na start, +1 OVR po każdej wygranej (maks. +5)'},
+ glass:{label:'Szkło +4',d:4,tip:'+4 do oceny, 20% szans na kontuzję przed meczem (−10)'}
+};
+const EVENTYR={};
+[2002,2006,2010,2014,2018,2022,2026].forEach(y=>EVENTYR[y]=['wc','Mundial '+y]);
+[2000,2004,2008,2012,2016,2020,2024].forEach(y=>EVENTYR[y]=['euro','Euro '+y]);
+const INJ=new Set();
+/* statystyki cząstkowe: liczone z nazwiska i oceny, więc zawsze takie same dla danej karty */
+const STL=['SZY','STR','POD','DRI','OBR','SIŁ'],STG=['PAR','REF','POZ','KOP','WYJ','SZY'];
+const PROF={ST:[2,6,-6,0,-30,2],LW:[8,0,-2,8,-28,-8],RW:[8,0,-2,8,-28,-8],CAM:[-2,0,6,6,-22,-10],LM:[4,-4,2,4,-20,-4],RM:[4,-4,2,4,-20,-4],CM:[-3,-3,6,2,-10,2],CDM:[-8,-12,2,-8,8,8],CB:[-8,-25,-8,-14,10,8],LB:[2,-20,-2,-4,4,-2],RB:[2,-20,-2,-4,4,-2],GK:[2,2,0,-4,2,-26]};
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function statsOf(c){
+  const h=hash(c.n+c.pos),off=PROF[c.pos]||[0,0,0,0,0,0],base=c.ovr-(c.grow||0);
+  return off.map((o,i)=>Math.max(25,Math.min(99,Math.round(base+o+(((h>>(i*4))&15)-8)*.6))));
+}
+function baseOvr(p,year,noise){const d=Math.abs(year-p.py);let b=p.peak-Math.round(d*1.7)+(noise?rnd(5)-2:0);return Math.max(52,Math.min(p.peak,b));}
+/* ulepszenia: bazowe szanse i efekty poziomów */
+const UPFX={icon:l=>0.010+0.0012*l,toty:l=>0.020+0.0025*l,rare:l=>14+0.8*l,coin:l=>1+0.06*l,mut:l=>0.22+0.015*l,start:l=>l};
+function upLv(k){return (P.up&&P.up[k])||0;}
+function makeCard(p,year,o){
+  o=o||{};
+  const base=baseOvr(p,year,true);
+  let r=o.force||wpick([{k:'norm',w:86},{k:'rare',w:o.rare||14}]).k;
+  const evy=EVENTYR[year];
+  if(r==='norm'&&evy&&RNG()<.15)r='event';
+  let ovr=base,tier,evl=null;
+  if(r==='norm'){tier=base<65?'bronze':base<75?'silver':'gold';}
+  else if(r==='event'){ovr=base+2;tier=evy[0];evl=evy[1];}
+  else if(r==='rare'){ovr=base+1;tier=base>=75?'rare':(base<65?'bronze':'silver');}
+  else if(r==='toty'){ovr=base+3;tier='toty';}
+  else{ovr=base+5;tier='icon';}
+  let mut=null;
+  if(RNG()<(o.mut||.22)){mut=wpick([{k:'boost',w:8},{k:'mega',w:2.5},{k:'wild',w:3},{k:'clutch',w:3},{k:'curse',w:2},{k:'captain',w:3},{k:'young',w:3},{k:'glass',w:3}]).k;ovr+=MUTS[mut].d;}
+  ovr=Math.max(40,Math.min(99,ovr));
+  const card={n:p.n,pos:p.pos,c:p.c,year,ovr,tier,mut,g:p.g};
+  if(evl)card.ev=evl;
+  return card;
+}
+/* pack: need={gk:bool,field:bool}; opts.country, opts.avoidYear, opts.up (poziomy ulepszeń) */
+function genPack(need,opts){
+  opts=opts||{};let soft=0;
+  const up=opts.up||{},co={rare:UPFX.rare(up.rare||0),mut:UPFX.mut(up.mut||0)};
+  let wantI=RNG()<UPFX.icon(up.icon||0),wantT=!wantI&&RNG()<UPFX.toty(up.toty||0);
+  for(let t=0;t<400;t++){
+    const country=opts.country||pick(CODES);
+    if(!opts.country&&opts.avoidCountry&&country===opts.avoidCountry&&t<120)continue;
+    let year=MINY+rnd(MAXY-MINY+1);
+    if(opts.avoidYear&&year===opts.avoidYear)continue;
+    const pool=PLAYERS.filter(p=>p.c===country&&p.from<=year&&year<=p.to&&((p.g==='GK')?need.gk:need.field));
+    const min=t<150?5:t<280?3:1;
+    if(pool.length<min)continue;
+    if(wantI&&t<300&&!pool.some(p=>p.peak>=86))continue;
+    let ch=shuffle(pool).slice(0,5);
+    if(need.gk&&need.forceGK&&!ch.some(p=>p.g==='GK')){const gk=pool.filter(p=>p.g==='GK');if(gk.length)ch[0]=pick(gk);}
+    const force={};
+    const slotFor=()=>{const ix=ch.map((p,i)=>i).filter(i=>ch[i].g!=='GK'&&!force[i]);return ix.length?pick(ix):rnd(ch.length);};
+    if(wantI){
+      const el=ch.map((p,i)=>p.peak>=86?i:-1).filter(i=>i>=0);let ii=-1;
+      if(el.length)ii=pick(el);
+      else{const c2=pool.filter(p=>p.peak>=86&&!ch.includes(p));if(c2.length){ii=slotFor();ch[ii]=pick(c2);}}
+      if(ii>=0)force[ii]='icon';else if(t<300)continue;
+    }
+    if(wantT){const ii=slotFor();force[ii]='toty';}
+    const cards=ch.map((p,i)=>makeCard(p,year,{force:force[i],rare:co.rare,mut:co.mut}));
+    if(soft<4&&Math.max.apply(null,cards.map(c=>c.ovr))<72){soft++;continue;}
+    return {country,year,cards};
+  }
+  return null;
+}
+function penalty(slotPos,card){
+  if((slotPos==='GK')!==(card.pos==='GK'))return 99;
+  if(card.mut==='wild')return 0;
+  if(slotPos===card.pos)return 0;
+  if((NEIGH[slotPos]||[]).includes(card.pos))return 3;
+  if(GROUP[slotPos]===GROUP[card.pos])return 8;
+  return 15;
+}
+function chemBonus(n){return n>=7?3:n>=5?2:n>=3?1:0;}
+function countryCounts(slots){const m={};let cap=0;slots.forEach(s=>{if(s.card){m[s.card.c]=(m[s.card.c]||0)+1;if(s.card.mut==='captain')cap++;}});Object.defineProperty(m,'cap',{value:cap,enumerable:false});return m;}
+function eff(slot,cc,ko){
+  const c=slot.card;if(!c)return 0;
+  let v=c.ovr-penalty(slot.pos,c)+chemBonus(cc[c.c]||0);
+  if(ko&&c.mut==='clutch')v+=4;
+  if(cc.cap)v+=Math.min(2,cc.cap-(c.mut==='captain'?1:0));
+  if(INJ.has(c))v-=10;
+  return Math.max(30,v);
+}
+function ratings(slots,ko){
+  const cc=countryCounts(slots);
+  const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
+  const gk=[],df=[],md=[],at=[],all=[];
+  slots.forEach(s=>{const e=eff(s,cc,ko);all.push(e);const g=GROUP[s.pos];(g==='GK'?gk:g==='DEF'?df:g==='MID'?md:at).push(e);});
+  return {gk:avg(gk),def:avg(df),mid:avg(md),att:avg(at),ovr:avg(all)};
+}
+/* ===== Zapis ===== */
+const KEY='ultimate11draft.v1';
+const P0={shards:0,coins:0,ach:{},per:{},hist:[],daily:{},pref:{mode:'cup',diff:'normal'},tok:{year:0,all:0},up:{icon:0,toty:0,rare:0,coin:0,mut:0,start:0},stats:{wins:0,goals:0,clean:0,big:0,groups:0,titles:0,icons:0,muts:0,totys:0,drafts:0,chem5:0,matches:0,events:0,dups:0,grown:0,leagues:0,leagueTitles:0,dailies:0},claimed:{},best:0};
+let P=JSON.parse(JSON.stringify(P0)),S={view:'menu'};
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){const d=JSON.parse(raw);
+      if(d.P){P=Object.assign({},P0,d.P);P.tok=Object.assign({},P0.tok,d.P.tok);P.stats=Object.assign({},P0.stats,d.P.stats);P.claimed=d.P.claimed||{};P.up=Object.assign({},P0.up,d.P.up);}
+      if(d.S&&d.S.view&&d.S.view!=='match'){S=d.S;}
+      else if(d.S&&d.S.view==='match'){S=d.S;S.view='squad';}
+    }
+  }catch(e){}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({P,S}));}catch(e){}}
+let toastT;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true;},2600);}
+/* ===== Widoki: menu, draft, skład ===== */
+const STAGES=['Grupa 1/3','Grupa 2/3','Grupa 3/3','Ćwierćfinał','Półfinał','Finał'];
+const short=n=>{const w=n.split(' ');return w.length>1?w.slice(1).join(' '):n;};
+function statsHTML(c){
+  const L=c.pos==='GK'?STG:STL,v=statsOf(c);
+  return '<div class="stats">'+v.map((x,i)=>'<span><b>'+x+'</b> '+L[i]+'</span>').join('')+'</div>';
+}
+function mutLabel(c){return MUTS[c.mut].label+(c.mut==='young'&&c.grow?' +'+c.grow:'');}
+function inner(c,mini,cb){
+  return (mini&&c.mut?'<i class="mutdot"></i>':'')+'<div class="ovr">'+c.ovr+'</div><span class="cpos">'+c.pos+'</span>'+(mini?'':'<span class="tier">'+esc(c.ev||TIERN[c.tier])+'</span>')+
+    '<div class="nm">'+esc(mini?short(c.n):c.n)+'</div>'+(mini?'':'<div class="meta"><span>'+flagHTML(c.c)+c.c+'</span><span>'+c.year+'</span></div>'+statsHTML(c))+
+    (!mini&&c.mut?'<span class="mut" title="'+esc(MUTS[c.mut].tip||'')+'">'+esc(mutLabel(c))+'</span>':'')+(!mini&&c.dup?'<span class="mut dupb">Duplikat</span>':'')+(cb?'<span class="cb"></span>':'');
+}
+function packCards(cards,act,selIdx,fresh,cls){
+  const q=fresh==='q',fr=fresh&&!FASTA(),base=q?0:1.2,gap=q?.08:.14;
+  return '<div class="pack'+(fr?' fresh':'')+(cls?' '+cls:'')+'">'+cards.map((c,i)=>'<button class="card t-'+c.tier+(selIdx===i?' sel':'')+'" style="--d:'+(base+i*gap).toFixed(2)+'s" data-act="'+act+'" data-i="'+i+'" aria-label="'+esc(c.n)+' '+c.ovr+'">'+inner(c,false,true)+'</button>').join('')+'</div>';
+}
+function pitchHTML(o){
+  o=o||{};
+  return '<div class="pitch"><div class="mid"></div><div class="circ"></div><div class="pb pbt"></div><div class="pb pbb"></div><i class="sp spt"></i><i class="sp spb"></i><div class="arc arct"></div><div class="arc arcb"></div>'+S.slots.map((s,i)=>{
+    const st='left:'+s.x+'%;top:'+s.y+'%';
+    if(!s.card){
+      const p=o.card?penalty(s.pos,o.card):99,ok=o.card&&p<99&&!o.dup;
+      return '<button class="slot empty'+(ok?' ok':'')+'" style="'+st+'" data-act="place" data-i="'+i+'"'+(ok?'':' disabled')+'><div class="ph">'+s.pos+'</div>'+(ok&&p?'<span class="pen">−'+p+'</span>':'')+'</button>';
+    }
+    const pen=penalty(s.pos,s.card);
+    return '<button class="slot'+(o.selSlot===i?' sel':'')+(S.lastPlaced===i?' new':'')+'" style="'+st+'" data-act="'+(o.act||'noop')+'" data-i="'+i+'" aria-label="'+esc(s.card.n)+'"><div class="card t-'+s.card.tier+' mini">'+inner(s.card,true)+'</div>'+(pen?'<span class="pen">−'+pen+'</span>':'')+'</button>';
+  }).join('')+(o.extra||'')+'</div>';
+}
+function linesHTML(r,key){
+  key=key||'x';
+  const it=[['ovr','Ogółem'],['att','Atak'],['mid','Pomoc'],['def','Obrona']];
+  return '<div class="lines">'+it.map(a=>{const v=Math.round(r[a[0]]),w=Math.max(0,Math.min(100,(v-55)*2.5));return '<div><b data-cnt="'+v+'" data-key="'+key+a[0]+'">'+v+'</b><span>'+a[1]+'</span><i class="lb" style="--w:'+w+'%"></i></div>';}).join('')+'</div>';
+}
+function chemHTML(){
+  const cc=countryCounts(S.slots),keys=Object.keys(cc).sort((a,b)=>cc[b]-cc[a]);
+  if(!keys.length)return '';
+  return '<div class="chem">'+keys.map(k=>{const b=chemBonus(cc[k]);return '<span class="'+(b?'on':'')+'">'+k+' ×'+cc[k]+(b?' · +'+b:'')+'</span>';}).join('')+'</div><div class="small mute">Chemia: 3 zawodników z jednego kraju daje +1 do ich ocen, 5 daje +2, 7 daje +3.</div>';
+}
+function newRunBtn(){return '<button class="btn" data-act="reset">'+(S.confirmReset?'Na pewno? Kliknij jeszcze raz':'Nowy run')+'</button>';}
+
+/* ----- menu ----- */
+/* ----- draft ----- */
+function needNow(){
+  const e=S.slots.filter(s=>!s.card);
+  const gk=e.some(s=>s.pos==='GK'),field=e.some(s=>s.pos!=='GK');
+  return {gk,field,forceGK:gk&&e.length<=5};
+}
+function rollPack(opts){
+  const o=S.daily?(opts||{}):packOpts(opts);
+  const f=()=>genPack(needNow(),o);
+  const p=S.daily?withRng(S.daily.seed+S.slots.filter(s=>s.card).length*7919+(S.rr||0)*131,f):f();
+  S.pack=p;S.sel=null;S.fresh=true;if(!S.daily)notePack(p);
+}
+function dupOf(c){return S.slots.some(s=>s.card&&s.card.n===c.n);}
+function effIf(card,idx){
+  const tmp=S.slots.map((s,i)=>i===idx?{pos:s.pos,card}:s),cc=countryCounts(tmp);
+  return {e:eff(tmp[idx],cc,false),pen:penalty(S.slots[idx].pos,card),chem:chemBonus(cc[card.c]||0)};
+}
+function bestSlot(card){
+  let bi=-1,be=-1;
+  S.slots.forEach((s,i)=>{if(s.card||penalty(s.pos,card)>=99)return;const r=effIf(card,i);if(r.e>be){be=r.e;bi=i;}});
+  return bi;
+}
+function prevText(card,idx){
+  if(idx<0)return 'Brak wolnego miejsca dla tej karty.';
+  const r=effIf(card,idx);
+  return 'Na pozycji '+S.slots[idx].pos+': <b>'+r.e+'</b> (ocena '+card.ovr+(r.pen?', kara −'+r.pen:'')+(r.chem?', chemia +'+r.chem:'')+')';
+}
+function viewDraft(){
+  const n=S.slots.filter(s=>s.card).length;
+  if(S.pack)S.pack.cards.forEach(c=>{c.dup=dupOf(c);});
+  const card=(S.sel!=null&&S.pack)?S.pack.cards[S.sel]:null,isDup=!!(card&&card.dup);
+  const filled=S.slots.filter(s=>s.card);
+  const r=filled.length?ratings(filled,false):null;
+  const head='<div class="row" style="justify-content:space-between"><span class="mute small">Ustawienie '+S.formation+' · wybór '+(n+1)+' z 11</span>'+newRunBtn()+'</div><div class="bar"><i style="width:'+(n/11*100)+'%"></i></div>';
+  const roll='<div class="reels"><div class="reel rc"><div class="strip" id="rcs">'+(S.pack?reelItem(S.pack.country):'')+'</div></div><div class="reel ry"><div class="strip" id="rys">'+(S.pack?yearItem(S.pack.year):'')+'</div></div></div>';
+  let act;
+  if(card){
+    const bi=bestSlot(card);
+    act='<div class="selbox"><div class="small" id="prev">'+(isDup?'Ten zawodnik już jest w składzie. Rozmień go na odłamek albo wybierz inną kartę.':prevText(card,bi))+'</div><div class="row" style="margin-top:8px">'+(isDup?'<button class="btn" data-act="dup">Rozmień na odłamek</button>':'<button class="btn pri" data-act="auto"'+(bi<0?' disabled':'')+'>Połóż automatycznie</button>')+'</div></div>';
+  }else act='<p class="small mute" style="margin:8px 0 0">Wybierz kartę. Potem kliknij miejsce na boisku albo przeciągnij kartę na boisko (na telefonie przytrzymaj ją chwilę).</p>';
+  const toks='<div class="row" style="margin-top:14px"><button class="btn" data-act="tokyear"'+(P.tok.year>0&&S.pack&&!S.daily?'':' disabled')+'>Reroll roku ('+P.tok.year+')</button><button class="btn" data-act="tokall"'+(P.tok.all>0&&S.pack&&!S.daily?'':' disabled')+'>Reroll wszystkiego ('+P.tok.all+')</button><button class="btn" data-act="undo"'+(S.last&&P.tok.year>0&&!S.daily?'':' disabled')+'>Cofnij ostatni wybór (−1 reroll roku)</button></div><div class="small mute" style="margin-top:6px">Reroll roku zostawia kraj i zmienia rok. Reroll wszystkiego losuje kraj i rok od nowa. Duplikaty zamieniasz na odłamki: 3 odłamki dają reroll roku.</div>';
+  const pack=S.pack?packCards(S.pack.cards,'selcard',S.sel,S.fresh):'<p class="mute">Nie udało się wylosować paczki. Kliknij reroll.</p>';
+  return '<div class="grid gs"><div class="panel">'+head+roll+pack+act+toks+(r?'<h3 style="margin-top:16px">Skład na żywo</h3>'+linesHTML(r,'lv')+chemHTML():'')+'</div><div>'+pitchHTML({card:card,dup:isDup})+'</div></div>';
+}
+/* ----- skład ----- */
+function viewSquad(){
+  if(S.swap&&!S.swap.shown){S.swap._first=true;}
+  const ko=isKO(),r=ratings(S.slots,ko),o=S.opp;
+  const track=S.mode==='league'?tableHTML():'<div class="stages">'+STAGES.map((n,i)=>'<span class="'+(i<S.stage?'done':i===S.stage?'now':'')+'">'+n+'</span>').join('')+'</div>';
+  const opp=o?'<div class="panel" style="background:var(--panel2)"><div class="small mute">Następny rywal'+(S.mode==='league'?' · '+stageName(S.stage):'')+'</div><h3 style="font-size:28px">'+(o.c?flagHTML(o.c):'')+esc(o.name)+'</h3><div class="small mute">Gwiazdy: '+o.stars.map(esc).join(', ')+'</div>'+linesHTML({ovr:o.ovr,att:o.att,mid:o.mid,def:o.def},'op')+'</div>':'';
+  const sl=S.swapSel!=null?S.slots[S.swapSel]:null;
+  let side='';
+  if(S.swap){
+    side='<h3>Wymiana: '+COUNTRIES[S.swap.pack.country]+' '+S.swap.pack.year+'</h3><p class="small mute">Wybierz zawodnika na miejsce '+esc(sl.pos)+'. Reroll jest już zużyty.</p>'+packCards(S.swap.pack.cards,'swappick',null,(S.swap.shown?false:'q'),'pack3')+'<button class="btn" data-act="swapkeep">Zostaw obecnego</button>';
+  }else if(sl){
+    side='<h3>Wybrany: '+esc(sl.card.n)+'</h3><div style="max-width:140px;margin:8px 0"><div class="card t-'+sl.card.tier+'">'+inner(sl.card,false)+'</div></div><div class="row"><button class="btn" data-act="swapyear"'+(P.tok.year>0&&!S.daily?'':' disabled')+'>Reroll roku ('+P.tok.year+')</button><button class="btn" data-act="swapall"'+(P.tok.all>0&&!S.daily?'':' disabled')+'>Reroll wszystkiego ('+P.tok.all+')</button></div><div class="small mute" style="margin-top:6px">Reroll roku daje nową paczkę z kraju tego zawodnika. Reroll wszystkiego losuje kraj i rok.</div>';
+  }else{
+    side='<p class="small mute">Kliknij zawodnika na boisku, żeby go wymienić za reroll. Rerolle zdobędziesz w questach.</p>';
+  }
+  const hist=S.hist&&S.hist.length?'<div class="small mute" style="margin-top:10px">'+S.hist.map(h=>stageName(h.stage)).map((n,i)=>n+': '+S.hist[i].gf+':'+S.hist[i].ga+(S.hist[i].pk?' (k. '+S.hist[i].pk+')':'')+' z '+esc(S.hist[i].opp)).join('<br>')+'</div>':'';
+  return '<div class="grid gs"><div class="panel"><div class="row" style="justify-content:space-between"><span class="mute small">Ustawienie '+S.formation+(S.mode!=='league'&&S.stage<3?' · punkty w grupie: '+S.pts:'')+(S.mode==='league'?' · liga':'')+(S.daily?' · wyzwanie dnia':'')+(S.diff&&S.diff!=='normal'?' · '+DIFFN[S.diff]:'')+'</span>'+newRunBtn()+'</div>'+track+opp+'<h3 style="margin-top:16px">Twój skład'+(ko?' (z bonusem Clutch)':'')+'</h3>'+linesHTML(r,'sq')+chemHTML()+'<div style="margin:14px 0">'+side+'</div><div class="fastbar" style="margin-top:0"><button class="btn pri" data-act="play"'+(S.swap?' disabled':'')+'>Zagraj: '+stageName(S.stage)+'</button><button class="btn" data-act="quick"'+(S.swap?' disabled':'')+'>Szybki mecz</button></div>'+hist+'</div><div>'+pitchHTML({act:'selslot',selSlot:S.swapSel})+'</div></div>';
+}
+/* ===== Mecz: animacja na boisku, taktyka, przerwa, rzuty karne ===== */
+let M=null;
+const TACT={
+  bal:{n:'Zrównoważona',d:'bez zmian',att:0,mid:0,def:0},
+  att:{n:'Atak',d:'+5 atak, −5 obrona',att:5,mid:0,def:-5},
+  def:{n:'Obrona',d:'+5 obrona, −5 atak',att:-5,mid:0,def:5},
+  press:{n:'Pressing',d:'+4 pomoc, −3 obrona',att:0,mid:4,def:-3}
+};
+const DIRS=['Lewo','Środek','Prawo'];
+function tmod(r,t){const k=TACT[t];return {gk:r.gk,att:r.att+k.att,mid:r.mid+k.mid,def:r.def+k.def};}
+function muOf(a,m,d,dm,dg){return Math.max(.3,Math.min(4,1.25*Math.exp(((a*.55+m*.45)-(d*.6+dm*.2+dg*.2))/12)));}
+function poisson(l){const L=Math.exp(-l);let k=0,p=1;do{k++;p*=RNG();}while(p>L);return k-1;}
+const SCW={ST:10,LW:7,RW:7,CAM:6,LM:5,RM:5,CM:3,CDM:2,LB:1.5,RB:1.5,CB:1.2,GK:0};
+
+function lineupHTML(o){
+  return '<div class="lineup">'+o.lineup.map(p=>'<div><span>'+p.pos+'</span><span>'+esc(p.n)+'</span><b>'+p.ovr+'</b></div>').join('')+'</div>';
+}
+function viewMatch(){
+  const o=S.opp;
+  return '<div class="panel"><div class="small mute">'+stageName(S.stage)+(isKO()?' · mecz pucharowy, remis oznacza karne':'')+'</div><div class="tv"><div class="tvt"><i class="crest"></i><span>Twój skład</span></div><div class="tvs"><b id="sc">0:0</b><span id="clk">0\'</span></div><div class="tvt r"><span>'+(o.c?flagHTML(o.c):'')+esc(o.name)+'</span><i class="crest" style="background:#6fb7ff"></i></div></div><div id="verdict"></div><div id="ctl"></div></div>'+
+   '<div class="grid" style="margin-top:18px"><div>'+pitchHTML({extra:'<div class="ball" id="ball" style="left:50%;top:50%"></div><div class="gflash" id="gfl" hidden></div><div class="vig" id="vig"></div>'})+'</div><div class="panel"><h3>Przebieg</h3><div class="log" id="lg"></div><h3 style="margin-top:16px">Skład rywala</h3>'+lineupHTML(o)+'</div></div>';
+}
+function logLine(cls,min,text){
+  const lg=$('#lg');if(!lg)return;
+  const d=document.createElement('div');if(cls)d.className=cls;
+  d.innerHTML='<span class="m">'+(min?min+'\'':'')+'</span><span>'+esc(text)+'</span>';
+  lg.appendChild(d);lg.scrollTop=lg.scrollHeight;
+}
+function later(fn,ms){const t=setTimeout(fn,ms);M.to.push(t);}
+function setBall(x,y){const b=$('#ball');if(b){b.style.left=x+'%';b.style.top=y+'%';}}
+function slotPos(i){const s=S.slots[i];return s?[s.x,s.y]:[50,50];}
+function lightSlot(i){const el=document.querySelector('.pitch .slot[data-i="'+i+'"]');if(!el)return;el.classList.add('act');later(()=>el.classList.remove('act'),900);}
+function flash(txt,bad){const f=$('#gfl');if(!f)return;f.textContent=txt;f.className='gflash'+(bad?' bad':'');f.hidden=false;later(()=>{f.hidden=true;},1100);}
+function gkIndex(){return S.slots.findIndex(s=>s.pos==='GK');}
+
+/* ----- start ----- */
+function startMatch(){
+  const ko=isKO();
+  INJ.clear();const inj=[],_o=RNG;
+  if(S.daily)RNG=mulberry(S.daily.seed+S.stage*53);
+  S.slots.forEach(s=>{if(s.card.mut==='glass'&&RNG()<.2){INJ.add(s.card);inj.push(s.card.n);}});
+  RNG=_o;
+  M={ko,my:ratings(S.slots,ko),cc:countryCounts(S.slots),tactic:'bal',phase:'pre',min:0,gf:0,ga:0,used:new Set(),ev:[],to:[],timer:null,pen:null,hi:45};
+  S.view='match';S.swapSel=null;S.swap=null;render();
+  logLine('',0,'Zawodnicy wychodzą na boisko: '+stageName(S.stage)+'.');
+  inj.forEach(n=>logLine('',0,'Kontuzja przed meczem: '+n+' (−10 do oceny).'));
+  renderCtl();
+}
+function hintText(){
+  const my=M.my,o=S.opp,a=[];
+  if(o.att>my.def+3)a.push('Atak rywala jest silniejszy od twojej obrony. Rozważ Obronę.');
+  if(my.att>o.def+3)a.push('Twój atak jest silniejszy od obrony rywala. Możesz zaatakować.');
+  if(M.phase==='ht'&&M.gf<M.ga)a.push('Przegrywasz, więc Atak albo Pressing mogą pomóc.');
+  if(M.phase==='ht'&&M.gf>M.ga)a.push('Prowadzisz. Obrona pomoże utrzymać wynik.');
+  return a.length?a.join(' '):'Siły są wyrównane.';
+}
+function tactBtns(){
+  return '<div class="row">'+Object.keys(TACT).map(k=>'<button class="btn tact'+(M.tactic===k?' on':'')+'" data-act="m-tact" data-k="'+k+'"><b>'+TACT[k].n+'</b><span class="small mute">'+TACT[k].d+'</span></button>').join('')+'</div>';
+}
+function renderCtl(){
+  const c=$('#ctl');if(!c||!M)return;
+  const p=M.phase;let h='';
+  if(p==='pre'){
+    h='<h3>Taktyka na pierwszą połowę</h3>'+tactBtns()+'<p class="small mute">'+hintText()+'</p><div class="fastbar" style="margin-top:0"><button class="btn pri" data-act="m-go">Gwizdek, start</button><button class="btn" data-act="m-skipall">Pomiń do końca</button></div>';
+  }else if(p==='h1'||p==='h2'){
+    h='<div class="row" style="justify-content:space-between"><span class="small mute">Taktyka: '+TACT[M.tactic].n+'</span><span class="row" style="gap:8px"><button class="btn" data-act="m-skip">Pomiń połowę</button><button class="btn pri" data-act="m-skipall">Pomiń do końca</button></span></div>';
+  }else if(p==='ht'){
+    h='<h3>Przerwa. Wynik '+M.gf+':'+M.ga+'</h3><p class="small mute">'+hintText()+'</p>'+tactBtns()+'<div class="fastbar"><button class="btn pri" data-act="m-go">Druga połowa</button><button class="btn" data-act="m-skipall">Pomiń do końca</button></div>';
+  }else if(p==='pens'){
+    h=pensHTML();
+  }else if(p==='done'){
+    h='<button class="btn pri" data-act="next" id="nx">'+(M.next==='squad'?'Do składu':'Podsumowanie')+'</button>';
+  }
+  c.innerHTML=h;
+}
+/* ----- połowa ----- */
+function runHalf(h){
+  const lo=h===1?1:46,hi=h===1?45:90,o=S.opp;
+  M.phase='h'+h;M.hi=hi;M.cur=lo-1;
+  const _old=RNG;if(S.daily)RNG=mulberry(S.daily.seed+S.stage*977+h*13);
+  const my=tmod(M.my,M.tactic);
+  const gf=poisson(muOf(my.att,my.mid,o.def,o.mid,o.gk)/2),ga=poisson(muOf(o.att,o.mid,my.def,my.mid,my.gk)/2);
+  const mins=n=>{const a=[];let g=0;while(a.length<n&&g++<200){const m=lo+rnd(hi-lo+1);if(!M.used.has(m)){M.used.add(m);a.push(m);}}return a;};
+  const myW=S.slots.map((s,i)=>({i,w:(SCW[s.pos]||1)*Math.pow(eff(s,M.cc,M.ko)/80,3)*Math.pow(statsOf(s.card)[1]/80,2)}));
+  const ev=[];
+  mins(gf).forEach(m=>{const w=wpick(myW);ev.push({min:m,side:'h',type:'goal',si:w.i,text:'GOL! '+S.slots[w.i].card.n+' ('+S.slots[w.i].pos+')'});});
+  mins(ga).forEach(m=>{const nm=RNG()<.5?pick(S.opp.stars):pick(S.opp.pool);ev.push({min:m,side:'a',type:'goal',si:gkIndex(),text:'Gol dla rywali: '+nm});});
+  const gk=S.slots[gkIndex()].card.n;
+  mins(2+rnd(2)).forEach(m=>{
+    if(RNG()<.55){const w=wpick(myW),n=S.slots[w.i].card.n;ev.push({min:m,side:'h',type:'chance',si:w.i,text:pick([n+' uderza, piłka tuż obok słupka.',n+' w dobrej sytuacji, ale bramkarz rywali łapie piłkę.',n+' trafia w poprzeczkę!'])});}
+    else ev.push({min:m,side:'a',type:'chance',si:gkIndex(),text:pick([pick(S.opp.stars)+' próbuje z dystansu, '+gk+' broni.','Rzut rożny dla rywali, '+gk+' pewnie łapie piłkę.',pick(S.opp.stars)+' pudłuje z kilku metrów.'])});
+  });
+  M.ev=ev;RNG=_old;
+  if(h===1)logLine('',1,'Początek meczu.');else logLine('',46,'Zaczyna się druga połowa.');
+  renderCtl();sfx('whistle');
+  M.timer=setTimeout(tick,500);
+}
+function doEvent(e,fast){
+  if(e.type==='goal'){if(e.side==='h')M.gf++;else M.ga++;const s=$('#sc');if(s)s.textContent=M.gf+':'+M.ga;}
+  logLine(e.type==='goal'?(e.side==='h'?'g':'ga'):'',e.min,e.text);
+  if(fast)return;
+  if(e.side==='h'){
+    const p=slotPos(e.si);lightSlot(e.si);setBall(p[0],p[1]);
+    later(()=>setBall(40+rnd(21),e.type==='goal'?3:9),380);
+    if(e.type==='goal')later(()=>{flash('GOL!');sfx('goal');goalFx(true);},700);
+  }else{
+    const gi=gkIndex(),p=slotPos(gi);
+    setBall(25+rnd(51),68);
+    later(()=>setBall(40+rnd(21),e.type==='goal'?97:90),380);
+    if(e.type==='goal')later(()=>{flash('Gol rywali',true);sfx('concede');goalFx(false);},700);else{later(()=>lightSlot(gi),380);}
+  }
+}
+function tick(){
+  M.cur++;
+  const evs=M.ev.filter(e=>e.min===M.cur);
+  const clk=$('#clk');if(clk)clk.textContent=M.cur+'\'';
+  evs.forEach(e=>doEvent(e,false));
+  if(!evs.length){const att=Math.random()<.5;setBall(15+rnd(71),att?20+rnd(30):50+rnd(30));}
+  if(M.cur>=M.hi){endHalf();return;}
+  const goal=evs.some(e=>e.type==='goal'),ch=evs.length;
+  M.timer=setTimeout(tick,goal?1500:ch?950:140);
+}
+function fastHalf(){
+  clearTimeout(M.timer);M.to.forEach(clearTimeout);M.to=[];
+  while(M.cur<M.hi){M.cur++;M.ev.filter(e=>e.min===M.cur).forEach(e=>doEvent(e,true));}
+  const clk=$('#clk');if(clk)clk.textContent=M.hi+'\'';
+  endHalf();
+}
+function endHalf(){
+  clearTimeout(M.timer);sfx('whistle');
+  if(M.phase==='h1'){M.phase='ht';logLine('',45,'Przerwa. Wynik '+M.gf+':'+M.ga+'.');setBall(50,50);renderCtl();}
+  else{
+    logLine('',90,'Koniec regulaminowego czasu: '+M.gf+':'+M.ga+'.');
+    if(M.ko&&M.gf===M.ga)startPens();else finishMatch(null);
+  }
+}
+/* ----- karne ----- */
+function startPens(){
+  const sh=S.slots.filter(s=>s.pos!=='GK').map(s=>s.card).sort((a,b)=>statsOf(b)[1]-statsOf(a)[1]);
+  M.phase='pens';M.pen={a:0,b:0,na:0,nb:0,turn:'me',sh,hist:[]};
+  logLine('',0,'Remis. Rzuty karne!');renderCtl();setBall(50,78);
+}
+function penEnded(p){
+  const ra=Math.max(0,5-p.na),rb=Math.max(0,5-p.nb);
+  if(p.na<=5&&p.nb<=5&&!(p.na===5&&p.nb===5))return p.a>p.b+rb||p.b>p.a+ra;
+  return p.na===p.nb&&p.a!==p.b;
+}
+function pensHTML(){
+  const p=M.pen;
+  const dots=p.hist.map(x=>'<span style="color:'+(x.g?'var(--good)':'var(--bad)')+'">'+(x.g?'●':'○')+'</span>').join(' ');
+  let who,txt;
+  if(p.turn==='me'){const s=p.sh[p.na%p.sh.length];who='Strzelasz: '+s.n+' (STR '+statsOf(s)[1]+')';txt='Wybierz, w który róg kopniesz.';}
+  else{who='Rywal strzela: '+pick(S.opp.stars);txt='Wybierz, w którą stronę rzuci się twój bramkarz.';}
+  return '<h3>Rzuty karne: '+p.a+':'+p.b+'</h3><div style="font-size:20px;letter-spacing:.2em;margin:4px 0">'+dots+'</div><p><b>'+esc(who)+'</b><br><span class="small mute">'+txt+'</span></p><div class="row">'+DIRS.map((d,i)=>'<button class="btn" data-act="m-pk" data-d="'+i+'">'+d+'</button>').join('')+'<button class="btn" data-act="m-auto">Auto do końca</button></div>';
+}
+function penStep(choice){
+  const _o=RNG;
+  if(S.daily&&M.pen)RNG=mulberry(S.daily.seed+S.stage*31+M.pen.na*17+M.pen.nb*5+(M.pen.turn==='me'?1:2));
+  try{penStep0(choice);}finally{RNG=_o;}
+}
+function penStep0(choice){
+  const p=M.pen;let goal,line;
+  if(p.turn==='me'){
+    const s=p.sh[p.na%p.sh.length],kd=rnd(3),miss=Math.max(.04,.14-(statsOf(s)[1]-75)/250);
+    goal=kd===choice?RNG()>(.8+(S.opp.gk-80)/400):RNG()>miss;
+    p.na++;if(goal)p.a++;
+    line=s.n+(goal?' strzela gola ('+DIRS[choice].toLowerCase()+').':(kd===choice?' strzela, ale bramkarz broni.':' strzela obok bramki.'));
+    p.turn='opp';
+  }else{
+    const od=rnd(3),sv=.7+(statsOf(S.slots[gkIndex()].card)[0]-80)/300;
+    goal=od===choice?RNG()>sv:RNG()<.91;
+    p.nb++;if(goal)p.b++;
+    line='Rywal '+(goal?'trafia do siatki.':'nie trafia, twój bramkarz broni.');
+    p.turn='me';
+  }
+  sfx(goal?'goal':'save');p.hist.push({g:goal});logLine(goal?(p.turn==='opp'?'g':'ga'):'',0,line);
+  const bx=40+rnd(21);setBall(bx,p.turn==='opp'?4:96);
+  if(penEnded(p)){M.phase='pens-done';later(()=>finishMatch({a:p.a,b:p.b}),700);renderCtl();return;}
+  renderCtl();
+}
+/* ----- koniec ----- */
+function simQuick(A,B){
+  return [poisson(muOf(A.att,A.mid,B.def,B.mid,B.gk)),poisson(muOf(B.att,B.mid,A.def,A.mid,A.gk))];
+}
+function finishMatch(pens){
+  if(!M||M.phase==='done')return;
+  M.to.forEach(clearTimeout);clearTimeout(M.timer);
+  const ko=M.ko,gf=M.gf,ga=M.ga;
+  const win=gf>ga||(pens&&pens.a>pens.b),draw=!ko&&gf===ga;
+  if(pens)logLine('',0,'Karne: '+pens.a+':'+pens.b+'.');
+  logLine('',0,'Koniec meczu: '+gf+':'+ga+'.');
+  INJ.clear();
+  if(win){S.slots.forEach(s=>{const c=s.card;if(c.mut==='young'&&(c.grow||0)<5){c.ovr++;c.grow=(c.grow||0)+1;addStat('grown',1);logLine('',0,c.n+' rozwija się: '+c.ovr+' OVR.');}});}
+  addStat('matches',1);addStat('goals',gf);if(win)addStat('wins',1);if(ga===0)addStat('clean',1);if(gf-ga>=3)addStat('big',1);
+  S.hist=S.hist||[];S.hist.push({stage:S.stage,opp:S.opp.name,gf,ga,pk:pens?pens.a+':'+pens.b:''});
+  const cm=(COINM[S.diff||'normal']||1)*(S.daily?1:UPFX.coin(upLv('coin')));
+  const R=x=>Math.round(x*cm),notes=[];
+  S.streak=win?(S.streak||0)+1:0;
+  let coins=R(win?60:draw?25:10)+gf*5;
+  if(ga===0){coins+=R(15);notes.push('czyste konto +'+R(15));}
+  if(gf-ga>=3){coins+=R(20);notes.push('pogrom +'+R(20));}
+  if(win&&S.streak>=2){const b=R(Math.min(S.streak,5)*8);coins+=b;notes.push('seria '+S.streak+' +'+b);}
+  let next='squad',msg=win?'Zwycięstwo':draw?'Remis':'Porażka';
+  if(S.mode==='league'){
+    leagueRound(gf,ga);S.stage++;
+    if(S.league.round>=7){
+      next='league';const pos=leaguePos();
+      addStat('leagues',1);
+      const lb=pos===1?250:pos===2?150:pos===3?90:30;
+      if(pos===1)addStat('leagueTitles',1);
+      coins+=R(lb);notes.push('liga: '+pos+'. miejsce +'+R(lb));
+      msg+='. Koniec ligi: '+pos+'. miejsce';
+    }
+  }else if(S.stage<3){
+    S.pts+=win?3:draw?1:0;S.stage++;
+    if(S.stage===3){if(S.pts>=4){addStat('groups',1);coins+=R(50);notes.push('awans z grupy +'+R(50));msg+='. Awans z grupy ('+S.pts+' pkt)';}else{next='elim';msg+='. Odpadasz w grupie ('+S.pts+' pkt)';}}
+  }else if(win){
+    if(S.stage<5){const kb=[40,70][S.stage-3];coins+=R(kb);notes.push(STAGES[S.stage]+' +'+R(kb));}
+    S.stage++;
+    if(S.stage===6){next='champ';addStat('titles',1);coins+=R(300);notes.push('tytuł +'+R(300));msg='Mistrzostwo świata!';}
+  }else{next='elim';msg+='. Odpadasz z turnieju';}
+  P.coins=(P.coins||0)+coins;
+  M.next=next;M.phase='done';
+  if(next==='squad')S.opp=nextOpp();
+  const v=$('#verdict');if(v)v.innerHTML='<div class="banner '+(win||draw?'win':'lose')+'" style="text-align:center;margin:8px 0">'+esc(msg)+'</div><div class="small mute" style="text-align:center">+'+coins+' monet</div>'+(notes.length?'<div class="small mute" style="text-align:center">'+esc(notes.join(' · '))+'</div>':'')+'';
+  S.pendingNext=next;save();updateWallet();renderCtl();
+}
+function skipAll(){
+  if(!M)return;
+  for(let g=0;g<10&&M.phase!=='done';g++){
+    const p=M.phase;
+    if(p==='pre')runHalf(1);
+    else if(p==='ht')runHalf(2);
+    else if(p==='h1'||p==='h2')fastHalf();
+    else if(p==='pens'){while(M.phase==='pens')penStep(rnd(3));}
+    else if(p==='pens-done')finishMatch({a:M.pen.a,b:M.pen.b});
+    else break;
+  }
+}
+/* ----- zdarzenia klikane w meczu ----- */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act^="m-"]');if(!el||!M)return;
+  const a=el.dataset.act;
+  if(a==='m-tact'){M.tactic=el.dataset.k;renderCtl();}
+  else if(a==='m-go'){if(M.phase==='pre')runHalf(1);else if(M.phase==='ht')runHalf(2);}
+  else if(a==='m-skipall'){skipAll();}
+  else if(a==='m-skip'){if(M.phase==='h1'||M.phase==='h2')fastHalf();}
+  else if(a==='m-pk'){if(M.phase==='pens')penStep(+el.dataset.d);}
+  else if(a==='m-auto'){while(M.phase==='pens')penStep(rnd(3));}
+});
+/* ===== Dźwięk, walkout ikon, przeciąganie kart, podgląd pozycji ===== */
+let MUTE=false,AC=null,WT=null,DR=null;
+try{MUTE=localStorage.getItem('u11.mute')==='1';}catch(e){}
+function ac(){
+  try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();}catch(e){}
+  return AC;
+}
+function tone(f,d,type,vol,delay,slide){
+  const a=ac();if(!a||MUTE)return;
+  const t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol||.12,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05);
+}
+function noise(d,vol,f0,f1,delay){
+  const a=ac();if(!a||MUTE)return;
+  const t=a.currentTime+(delay||0),n=Math.floor(a.sampleRate*d),buf=a.createBuffer(1,n,a.sampleRate),ch=buf.getChannelData(0);
+  for(let i=0;i<n;i++)ch[i]=Math.random()*2-1;
+  const s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();
+  s.buffer=buf;fl.type='bandpass';fl.Q.value=.8;fl.frequency.setValueAtTime(f0,t);fl.frequency.exponentialRampToValueAtTime(f1,t+d);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+d*.3);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  s.connect(fl);fl.connect(g);g.connect(a.destination);s.start(t);
+}
+const SFX={
+  pick(){tone(520,.08,'triangle',.1);},
+  place(){tone(180,.14,'sine',.2,0,90);tone(660,.06,'triangle',.07,.02);},
+  pack(){noise(.4,.1,300,2600);},
+  goal(){[523,659,784,1047].forEach((f,i)=>tone(f,.28,'triangle',.12,i*.09));noise(1.3,.08,400,1800,.1);},
+  concede(){tone(240,.6,'sawtooth',.07,0,110);},
+  whistle(){tone(2600,.16,'sine',.09);tone(2800,.32,'sine',.09,.2);},
+  save(){tone(300,.12,'square',.05);},
+  claim(){tone(880,.1,'triangle',.1);tone(1175,.2,'triangle',.1,.08);},
+  tick(){tone(1500+Math.random()*300,.025,'square',.025);},
+  flip(t){if(t==='icon')return;if(t==='toty'){tone(784,.25,'triangle',.1);tone(1175,.4,'triangle',.08,.08);}else if(t==='rare'||t==='wc'||t==='euro'){tone(660,.2,'triangle',.08);tone(990,.25,'triangle',.06,.06);}else tone(t==='gold'?520:380,.07,'triangle',.06);},
+  icon(){[392,523,659,784].forEach(f=>tone(f,1.3,'sine',.07));tone(1568,.7,'triangle',.06,.3);noise(1,.07,200,3200);}
+};
+function sfx(k,a){try{if(SFX[k])SFX[k](a);}catch(e){}}
+
+/* ----- walkout ikony ----- */
+function walkout(c){
+  const w=$('#walk');if(!w)return;
+  w.innerHTML='<div class="wo-glow"></div><div class="wo-card"><div class="card t-icon">'+inner(c,false)+'</div></div><div class="wo-txt">Ikona w paczce<br><b>'+esc(c.n)+'</b></div>';
+  w.hidden=false;sfx('icon');
+  clearTimeout(WT);WT=setTimeout(()=>{w.hidden=true;},2800);
+}
+document.addEventListener('click',e=>{const w=$('#walk');if(w&&!w.hidden&&w.contains(e.target)){w.hidden=true;clearTimeout(WT);}});
+
+/* ----- przeciąganie kart na boisko ----- */
+function moveGhost(x,y){if(DR&&DR.ghost){DR.ghost.style.left=x+'px';DR.ghost.style.top=y+'px';}}
+function hoverSlot(x,y){
+  const el=document.elementFromPoint(x,y),sl=el&&el.closest?el.closest('.slot.ok'):null;
+  document.querySelectorAll('.slot.hov').forEach(s=>{if(s!==sl)s.classList.remove('hov');});
+  if(sl)sl.classList.add('hov');
+  return sl;
+}
+function startDrag(){
+  if(!DR||DR.active||S.view!=='draft')return;
+  const c=S.pack&&S.pack.cards[DR.i];
+  if(!c||c.dup){DR=null;return;}
+  DR.active=true;
+  try{document.body.setPointerCapture(DR.id);}catch(e){}
+  S.sel=DR.i;render();
+  const g=document.createElement('div');
+  g.className='ghost card t-'+c.tier+' mini';g.innerHTML=inner(c,true);
+  document.body.appendChild(g);DR.ghost=g;moveGhost(DR.x,DR.y);
+}
+function endDrag(drop){
+  if(!DR)return;
+  clearTimeout(DR.t);
+  if(DR.active){
+    const sl=drop?hoverSlot(DR.x,DR.y):null;
+    if(DR.ghost)DR.ghost.remove();
+    document.querySelectorAll('.slot.hov').forEach(s=>s.classList.remove('hov'));
+    try{document.body.releasePointerCapture(DR.id);}catch(e){}
+    window._noClick=true;setTimeout(()=>{window._noClick=false;},60);
+    if(sl)placeCard(+sl.dataset.i);
+  }
+  DR=null;
+}
+document.addEventListener('pointerdown',e=>{
+  const el=e.target.closest&&e.target.closest('.pack .card[data-act="selcard"]');
+  if(!el||(e.pointerType==='mouse'&&e.button!==0))return;
+  DR={i:+el.dataset.i,id:e.pointerId,x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,type:e.pointerType,active:false,ghost:null,t:null};
+  if(e.pointerType!=='mouse')DR.t=setTimeout(startDrag,330);
+});
+document.addEventListener('pointermove',e=>{
+  if(!DR)return;
+  DR.x=e.clientX;DR.y=e.clientY;
+  if(!DR.active){
+    const d=Math.hypot(DR.x-DR.x0,DR.y-DR.y0);
+    if(DR.type==='mouse'){if(d>6)startDrag();}
+    else if(d>10){clearTimeout(DR.t);DR=null;}
+    return;
+  }
+  moveGhost(DR.x,DR.y);hoverSlot(DR.x,DR.y);
+});
+document.addEventListener('pointerup',()=>endDrag(true));
+document.addEventListener('pointercancel',()=>endDrag(false));
+document.addEventListener('touchmove',e=>{if(DR&&DR.active)e.preventDefault();},{passive:false});
+
+/* ----- podgląd oceny po najechaniu na pozycję ----- */
+document.addEventListener('mouseover',e=>{
+  const sl=e.target.closest&&e.target.closest('.slot.ok');if(!sl||S.view!=='draft'||S.sel==null)return;
+  const card=S.pack&&S.pack.cards[S.sel],p=$('#prev');
+  if(card&&p&&!card.dup)p.innerHTML=prevText(card,+sl.dataset.i);
+});
+/* ===== Tryby (liga, wyzwanie dnia), questy okresowe, osiągnięcia, sklep, historia ===== */
+function ymd(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function weekKey(d){
+  d=d||new Date();const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),day=t.getUTCDay()||7;
+  t.setUTCDate(t.getUTCDate()+4-day);const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  return t.getUTCFullYear()+'-W'+String(Math.ceil(((t-y0)/864e5+1)/7)).padStart(2,'0');
+}
+function per(p){
+  const key=p==='d'?ymd():weekKey();
+  let o=P.per[p];if(!o||o.key!==key){o=P.per[p]={key:key,s:{},c:{}};}
+  return o;
+}
+function addStat(k,n){
+  P.stats[k]=(P.stats[k]||0)+n;
+  ['d','w'].forEach(p=>{const o=per(p);o.s[k]=(o.s[k]||0)+n;});
+}
+/* ----- liga ----- */
+function makeLeague(){
+  const off=(DIFFO[S.diff]||0)+adapt(),names=[],teams=[];
+  shuffle([73,75,77,79,81,83,85]).forEach(b=>{const t=genTeam(b+off,names);names.push(t.name);teams.push(t);});
+  const row=(name,me)=>({me:!!me,name:name,pl:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+  return {teams:teams,rows:[row('Ty',true)].concat(teams.map(t=>row(t.name))),round:0};
+}
+function leagueArr(r){const o=[];for(let k=0;k<7;k++)o.push(1+((k+r)%7));return [0].concat(o);}
+function updRow(row,f,a){row.pl++;row.gf+=f;row.ga+=a;if(f>a){row.w++;row.pts+=3;}else if(f===a){row.d++;row.pts++;}else row.l++;}
+function leagueRound(gf,ga){
+  const L=S.league,arr=leagueArr(L.round),oi=arr[7];
+  updRow(L.rows[0],gf,ga);updRow(L.rows[oi],ga,gf);
+  for(let i=1;i<=3;i++){
+    const a=arr[i],b=arr[7-i],r=simQuick(L.teams[a-1],L.teams[b-1]);
+    updRow(L.rows[a],r[0],r[1]);updRow(L.rows[b],r[1],r[0]);
+  }
+  L.round++;
+}
+function sortedRows(rows){
+  return (rows||S.league.rows).map((r,i)=>Object.assign({i:i},r)).sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf);
+}
+function leaguePos(){return sortedRows().findIndex(r=>r.me)+1;}
+function tableHTML(rows){
+  const t=sortedRows(rows);
+  return '<div class="tbl"><div class="tr th"><span>#</span><span>Drużyna</span><span>M</span><span>Bramki</span><span>Pkt</span></div>'+
+    t.map((r,i)=>'<div class="tr'+(r.me?' me':'')+'"><span>'+(i+1)+'</span><span>'+esc(r.name)+'</span><span>'+r.pl+'</span><span>'+r.gf+':'+r.ga+'</span><b>'+r.pts+'</b></div>').join('')+'</div>';
+}
+/* ----- wyzwanie dnia ----- */
+function dailyInfo(){
+  const date=ymd(),seed=hash('u11-'+date),keys=Object.keys(FORMS);
+  return {date:date,seed:seed,f:keys[seed%keys.length]};
+}
+function startDaily(){
+  const d=dailyInfo();
+  freshRun(d.f,{daily:{date:d.date,seed:d.seed},mode:'cup',diff:'normal'});
+}
+function dailyScore(champ){
+  const won=(S.hist||[]).filter(h=>h.stage>=3&&(h.gf>h.ga||(h.pk&&+h.pk.split(':')[0]>+h.pk.split(':')[1]))).length;
+  const goals=(S.hist||[]).reduce((s,h)=>s+h.gf,0);
+  const prog=S.pts>=4?200+won*150+(champ?150:0):S.pts*40;
+  return Math.round((S.ovr0||0)*10)+prog+goals*5;
+}
+function endRun(n){
+  if(S.recorded){S.view='end';return;}
+  const end={champ:n==='champ'};let res;
+  if(n==='league'){const pos=leaguePos();end.league={pos:pos,rows:JSON.parse(JSON.stringify(S.league.rows))};end.champ=pos===1;res='Liga: '+pos+'. miejsce';}
+  else if(n==='champ')res='Mistrzostwo';
+  else res=(S.stage===3&&S.pts<4)?'Odpadnięcie w grupie':'Odpadnięcie: '+STAGES[Math.min(S.stage,5)];
+  end.res=res;
+  if(S.daily){
+    const score=dailyScore(n==='champ'),D=P.daily;
+    if(D.date!==S.daily.date){D.date=S.daily.date;D.best=0;}
+    D.best=Math.max(D.best||0,score);
+    end.daily={score:score,date:S.daily.date,f:S.formation};
+    if(D.rewarded!==S.daily.date){D.rewarded=S.daily.date;P.tok.year++;P.coins=(P.coins||0)+50;addStat('dailies',1);end.daily.bonus=true;}
+    end.share='Ultimate 11 Draft '+S.daily.date+' · '+S.formation+' · skład '+(S.ovr0||0)+' OVR · wynik '+score+' ('+res+')';
+  }
+  S.end=end;S.view='end';S.recorded=true;
+  P.hist=P.hist||[];
+  P.hist.unshift({t:ymd(),mode:S.mode,diff:S.diff,daily:!!S.daily,f:S.formation,ovr:S.ovr0||0,res:res,sq:S.slots.map(s=>({n:s.card.n,pos:s.pos,o:s.card.ovr,t:s.card.tier,c:s.card.c,y:s.card.year}))});
+  P.hist=P.hist.slice(0,10);
+  save();
+}
+/* ----- widoki ----- */
+function seg(act,cur,items){
+  return '<div class="seg">'+items.map(i=>'<button class="'+(cur===i[0]?'on':'')+'" data-act="'+act+'" data-v="'+i[0]+'">'+i[1]+'</button>').join('')+'</div>';
+}
+/* ----- menu główne: Start > tryb > ustawienie ----- */
+const MENU={step:'home',wipe:false};
+const IC={
+ play:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>',
+ gear:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>',
+ quest:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9l1.6 1.6L12.5 7.8M8 15.5h8M14 10h2.5"/></svg>',
+ up:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V6M5.5 12.5L12 6l6.5 6.5M5 20h14"/></svg>',
+ cup:'<svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v4M8.5 20h7"/></svg>',
+ league:'<svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 13h8M8 16.5h5"/></svg>',
+ daily:'<svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M12 13l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z"/></svg>'
+};
+function mbtn(i,cls,act,s,ic,title,sub,badge){
+  return '<button class="mbtn '+cls+'" style="--i:'+i+'" data-act="'+act+'"'+(s?' data-s="'+s+'"':'')+'><span class="mic">'+IC[ic]+'</span><span class="mtx"><b>'+title+'</b><small>'+sub+'</small></span>'+(badge?'<span class="dot">'+badge+'</span>':'')+'<span class="chev">›</span></button>';
+}
+function menuHome(){
+  const st=P.stats,aff=UPS.filter(u=>upLv(u.k)<u.max&&(P.coins||0)>=upCost(u,upLv(u.k))).length,q=claimable();
+  const chips=[[st.titles+st.leagueTitles,'tytuły'],[st.wins,'wygrane'],[st.goals,'gole'],[P.best||'–','najlepszy skład']];
+  return '<section class="home"><div class="hm-l"><div class="eyebrow">Draft piłkarski</div><h1 class="logo">Ultimate <b>11</b> Draft</h1><p class="tag">Losujesz kraj, rok i pięć kart. Składasz jedenastkę z całej historii futbolu i próbujesz wygrać wszystko.</p>'+
+    '<nav class="mnav">'+mbtn(0,'start','menu-go','mode','play','Start','Turniej, liga albo wyzwanie dnia')+mbtn(1,'','menu-go','settings','gear','Ustawienia','Dźwięk, animacje, poziom trudności')+mbtn(2,'','quests','','quest','Questy','Dzienne, tygodniowe i stałe',q||'')+mbtn(3,'','ups','','up','Ulepszenia','Zwiększ szanse na Ikony i TOTY',aff||'')+'</nav>'+
+    '<div class="row mlinks"><button class="btn" data-act="mtab" data-t="a">Osiągnięcia</button><button class="btn" data-act="mtab" data-t="h">Historia składów</button><button class="btn" data-act="mtab" data-t="s">Sklep</button></div>'+
+    '<div class="mstats">'+chips.map(c=>'<div><b>'+c[0]+'</b><span>'+c[1]+'</span></div>').join('')+'</div></div>'+
+    '<div class="hm-r"><div class="glow"></div>'+heroFan()+'</div></section>';
+}
+function menuMode(){
+  const pf=P.pref,di=dailyInfo(),D=P.daily||{};
+  const dn={easy:'Słabsi rywale, monety ×0,7.',normal:'Wyważony poziom.',hard:'Silniejsi rywale, monety ×1,6.'};
+  return '<section class="step"><button class="btn back" data-act="menu-go" data-s="home">‹ Wstecz</button><h2 class="stt">Wybierz tryb</h2><div class="modes">'+
+    '<button class="mode" data-act="pickmode" data-v="cup"><span class="mi">'+IC.cup+'</span><h3>Turniej</h3><p>3 mecze grupowe, potem ćwierćfinał, półfinał i finał. Remis w pucharze oznacza rzuty karne.</p><span class="tagc">6 meczów</span></button>'+
+    '<button class="mode" data-act="pickmode" data-v="league"><span class="mi">'+IC.league+'</span><h3>Liga</h3><p>8 drużyn, 7 kolejek i tabela na żywo. Remisy są dozwolone, liczą się punkty.</p><span class="tagc">7 meczów</span></button>'+
+    '<button class="mode daily" data-act="daily"><span class="mi">'+IC.daily+'</span><h3>Wyzwanie dnia</h3><p>Ustawienie '+di.f+'. Wszyscy mają te same paczki i rywali, rerolle i ulepszenia są wyłączone.</p><span class="tagc">'+(D.date===di.date?'Twój wynik: '+D.best:'Nagroda za pierwszy raz')+'</span></button></div>'+
+    '<h3 class="sth">Poziom trudności</h3><div class="row">'+seg('setdiff',pf.diff,[['easy','Łatwy'],['normal','Normalny'],['hard','Legenda']])+'<span class="small mute">'+dn[pf.diff||'normal']+' Nie dotyczy wyzwania dnia.</span></div></section>';
+}
+function menuForm(){
+  const pf=P.pref,tiles=Object.keys(FORMS).map(k=>'<button class="form" data-act="start" data-f="'+k+'"><div class="mini-pitch">'+FORMS[k].map(s=>'<i style="left:'+s[1]+'%;top:'+s[2]+'%"></i>').join('')+'</div><div class="nm">'+k+'</div></button>').join('');
+  return '<section class="step"><button class="btn back" data-act="menu-go" data-s="mode">‹ Wstecz</button><h2 class="stt">Wybierz ustawienie</h2><div class="row" style="margin-top:6px"><span class="chip">'+(pf.mode==='league'?'Liga':'Turniej')+'</span><span class="chip">'+DIFFN[pf.diff||'normal']+'</span></div><div class="forms">'+tiles+'</div></section>';
+}
+function menuSettings(){
+  const pf=P.pref;
+  const row=(t,d,c)=>'<div class="srow"><div><b>'+t+'</b><div class="small mute">'+d+'</div></div><div>'+c+'</div></div>';
+  return '<section class="step"><button class="btn back" data-act="menu-go" data-s="home">‹ Wstecz</button><h2 class="stt">Ustawienia</h2><div class="panel sets">'+
+    row('Dźwięk','Efekty dźwiękowe w meczu i przy losowaniu.','<button class="btn" data-act="mute">Dźwięk</button>')+
+    row('Animacje','Pełne: bębny, odwracanie kart i efekty. Krótkie: bez długich animacji.','<button class="btn" data-act="fast">Animacje</button>')+
+    row('Domyślny poziom','Możesz go też zmienić przy wyborze trybu.',seg('setdiff',pf.diff,[['easy','Łatwy'],['normal','Normalny'],['hard','Legenda']]))+
+    row('Zapis gry','Postęp, monety i ulepszenia są w pamięci przeglądarki.',MENU.wipe?'<button class="btn danger" data-act="wipe">Na pewno usunąć?</button> <button class="btn" data-act="menu-go" data-s="settings">Anuluj</button>':'<button class="btn" data-act="wipe">Usuń postęp</button>')+
+    '</div></section>';
+}
+function viewMenu(){
+  return MENU.step==='mode'?menuMode():MENU.step==='form'?menuForm():MENU.step==='settings'?menuSettings():menuHome();
+}
+function viewEnd(){
+  const e=S.end||{},champ=e.champ;
+  const hist=(S.hist||[]).map(h=>'<div class="small">'+stageName(h.stage)+': '+h.gf+':'+h.ga+(h.pk?' (k. '+h.pk+')':'')+' z '+esc(h.opp)+'</div>').join('');
+  const title=e.league?'Liga: '+e.league.pos+'. miejsce':champ?'Mistrz!':'Koniec drogi';
+  const sub=e.league?(champ?'Wygrałeś ligę.':'Tabela końcowa poniżej.'):champ?'Twoja jedenastka wygrała cały turniej.':'Ten skład odpadł. Rerolle z questów zostają z tobą na kolejny draft.';
+  let extra='';
+  if(e.league)extra+='<div style="text-align:left;margin:14px 0">'+tableHTML(e.league.rows)+'</div>';
+  if(e.daily)extra+='<div class="selbox" style="text-align:left"><b>Wynik dnia: '+e.daily.score+'</b>'+(e.daily.bonus?' · nagroda: +1 reroll roku i 50 monet':'')+'<div class="small mute" style="margin:6px 0">'+esc(e.share)+'</div><button class="btn" data-act="share">Kopiuj wynik</button></div>';
+  return '<div class="panel" style="max-width:640px;margin:0 auto;text-align:center">'+(champ?TROPHY:'')+'<div class="banner '+(champ||(e.league&&e.league.pos<=3)?'win':'lose')+'">'+title+'</div><p class="mute">'+sub+'</p>'+extra+'<div style="text-align:left;margin:14px 0">'+hist+'</div><div class="row" style="justify-content:center"><button class="btn pri" data-act="reset2">Nowy draft</button><button class="btn" data-act="quests">Questy</button></div></div>';
+}
+/* ----- questy ----- */
+const QUESTS=[
+ {id:'q1',n:'Pierwsza krew',d:'Wygraj 1 mecz',s:'wins',t:1,r:{year:1}},
+ {id:'q2',n:'Dziesiątka',d:'Strzel 10 goli łącznie',s:'goals',t:10,r:{year:1}},
+ {id:'q3',n:'Snajper',d:'Strzel 30 goli łącznie',s:'goals',t:30,r:{all:1}},
+ {id:'q4',n:'Betonowa obrona',d:'Zachowaj 3 czyste konta',s:'clean',t:3,r:{year:1}},
+ {id:'q5',n:'Pogrom',d:'Wygraj 2 mecze różnicą 3+ goli',s:'big',t:2,r:{all:1}},
+ {id:'q6',n:'Wyjście z grupy',d:'Awansuj z grupy 3 razy',s:'groups',t:3,r:{year:2}},
+ {id:'q7',n:'Ikona w składzie',d:'Zdobądź 1 kartę Ikona',s:'icons',t:1,r:{all:2,coins:300}},
+ {id:'q8',n:'Kolekcjoner mutacji',d:'Zdobądź 5 kart z mutacją',s:'muts',t:5,r:{year:2}},
+ {id:'q9',n:'Drużyna roku',d:'Zdobądź 1 kartę TOTY',s:'totys',t:1,r:{all:1,coins:150}},
+ {id:'q10',n:'Jedna flaga',d:'Zbuduj skład z 5 zawodnikami z jednego kraju',s:'chem5',t:1,r:{year:1}},
+ {id:'q11',n:'Trzy drafty',d:'Ukończ 3 drafty',s:'drafts',t:3,r:{year:1}},
+ {id:'q12',n:'Weteran',d:'Wygraj 25 meczów',s:'wins',t:25,r:{all:2}},
+ {id:'q14',n:'Z odzysku',d:'Rozmień 3 duplikaty na odłamki',s:'dups',t:3,r:{year:1}},
+ {id:'q15',n:'Na wielkiej imprezie',d:'Zdobądź 2 karty Mundial lub Euro',s:'events',t:2,r:{all:1}},
+ {id:'q16',n:'Młodzieńczy zapał',d:'Rozwiń młodzików o łącznie 5 OVR',s:'grown',t:5,r:{year:2}},
+ {id:'q17',n:'Ligowiec',d:'Ukończ ligę',s:'leagues',t:1,r:{year:2,coins:100}},
+ {id:'q18',n:'Mistrz ligi',d:'Wygraj ligę',s:'leagueTitles',t:1,r:{all:2}},
+ {id:'q13',n:'Mistrz świata',d:'Wygraj cały turniej',s:'titles',t:1,r:{all:3}}
+];
+const DQ=[
+ {id:'d1',n:'Dwa zwycięstwa',d:'Wygraj 2 mecze',s:'wins',t:2,r:{year:1}},
+ {id:'d2',n:'Gole na dziś',d:'Strzel 6 goli',s:'goals',t:6,r:{coins:100}},
+ {id:'d3',n:'Nowy skład',d:'Ukończ 1 draft',s:'drafts',t:1,r:{coins:100}},
+ {id:'d4',n:'Czyste konto',d:'Nie strać gola w 1 meczu',s:'clean',t:1,r:{year:1}},
+ {id:'d5',n:'Mutanci',d:'Zdobądź 2 karty z mutacją',s:'muts',t:2,r:{coins:120}},
+ {id:'d6',n:'Z grupy',d:'Awansuj z grupy',s:'groups',t:1,r:{year:1}},
+ {id:'d7',n:'Rozbiórka',d:'Wygraj różnicą 3 goli',s:'big',t:1,r:{coins:150}},
+ {id:'d8',n:'Rozgrzewka',d:'Rozegraj 4 mecze',s:'matches',t:4,r:{coins:80}},
+ {id:'d9',n:'Seria wygranych',d:'Wygraj 3 mecze',s:'wins',t:3,r:{coins:140}},
+ {id:'d10',n:'Strzelanina',d:'Strzel 10 goli',s:'goals',t:10,r:{year:1,coins:60}},
+ {id:'d11',n:'Dwa kontakty',d:'Zachowaj 2 czyste konta',s:'clean',t:2,r:{coins:160}},
+ {id:'d12',n:'Dwa drafty',d:'Ukończ 2 drafty',s:'drafts',t:2,r:{year:1,coins:80}}
+];
+const WQ=[
+ {id:'w1',n:'Tydzień zwycięstw',d:'Wygraj 8 meczów',s:'wins',t:8,r:{all:1,coins:150}},
+ {id:'w2',n:'Snajperzy tygodnia',d:'Strzel 25 goli',s:'goals',t:25,r:{all:1}},
+ {id:'w3',n:'Tytuł tygodnia',d:'Wygraj turniej lub ligę',s:'titles',t:1,r:{all:2}},
+ {id:'w4',n:'Cztery drafty',d:'Ukończ 4 drafty',s:'drafts',t:4,r:{year:2,coins:100}},
+ {id:'w5',n:'Kolekcja mutacji',d:'Zdobądź 6 kart z mutacją',s:'muts',t:6,r:{year:2}},
+ {id:'w6',n:'Mur',d:'Zachowaj 4 czyste konta',s:'clean',t:4,r:{all:1}}
+];
+function pickQ(pool,key,n){
+  const r=mulberry(hash(key)),a=pool.slice();
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}
+  return a.slice(0,n);
+}
+function periodQuests(p){const o=per(p);return pickQ(p==='d'?DQ:WQ,p+o.key,p==='d'?4:2);}
+function dailyAll(){const o=per('d');return periodQuests('d').every(q=>o.c[q.id]);}
+const DBONUS={coins:200,all:1};
+function rwText(r){return [r.year?r.year+'× reroll roku':'',r.all?r.all+'× reroll wszystkiego':'',r.coins?r.coins+' monet':''].filter(Boolean).join(' + ');}
+function giveReward(r){P.tok.year+=r.year||0;P.tok.all+=r.all||0;P.coins=(P.coins||0)+(r.coins||0);}
+function claimable(){
+  let n=QUESTS.filter(q=>!P.claimed[q.id]&&P.stats[q.s]>=q.t).length;
+  ['d','w'].forEach(p=>{const o=per(p);periodQuests(p).forEach(q=>{if(!o.c[q.id]&&(o.s[q.s]||0)>=q.t)n++;});});
+  if(dailyAll()&&!per('d').c.bonus)n++;
+  return n;
+}
+/* ----- osiągnięcia ----- */
+const ACH=[
+ {id:'a1',n:'Debiutant',d:'Rozegraj pierwszy mecz',t:()=>P.stats.matches>=1},
+ {id:'a2',n:'Weteran',d:'Wygraj 50 meczów',t:()=>P.stats.wins>=50},
+ {id:'a3',n:'Setka goli',d:'Strzel 100 goli',t:()=>P.stats.goals>=100},
+ {id:'a4',n:'Mistrz świata',d:'Wygraj turniej',t:()=>P.stats.titles>=1},
+ {id:'a5',n:'Hat-trick tytułów',d:'Wygraj 3 turnieje',t:()=>P.stats.titles>=3},
+ {id:'a6',n:'Ligowiec',d:'Ukończ ligę',t:()=>P.stats.leagues>=1},
+ {id:'a7',n:'Król ligi',d:'Wygraj ligę',t:()=>P.stats.leagueTitles>=1},
+ {id:'a8',n:'Legenda',d:'Zdobądź Ikonę',t:()=>P.stats.icons>=1},
+ {id:'a9',n:'Kolekcjoner',d:'Zdobądź 15 kart z mutacją',t:()=>P.stats.muts>=15},
+ {id:'a10',n:'Na imprezie',d:'Zdobądź 5 kart Mundial lub Euro',t:()=>P.stats.events>=5},
+ {id:'a11',n:'Dzień w dzień',d:'Zagraj wyzwanie dnia',t:()=>P.stats.dailies>=1},
+ {id:'a12',n:'Elita',d:'Złóż skład 88+ OVR',t:()=>P.best>=88},
+ {id:'a13',n:'Złota jedenastka',d:'Złóż skład 90+ OVR',t:()=>P.best>=90},
+ {id:'a14',n:'Nieprzejednany',d:'Zachowaj 15 czystych kont',t:()=>P.stats.clean>=15},
+ {id:'a15',n:'Recykling',d:'Rozmień 10 duplikatów',t:()=>P.stats.dups>=10}
+];
+function checkAch(){
+  ACH.forEach(a=>{if(!P.ach[a.id]&&a.t()){P.ach[a.id]=1;toast('Osiągnięcie: '+a.n);sfx('claim');}});
+}
+/* ----- ulepszenia ----- */
+const f2=x=>(x*100).toFixed(2).replace('.',',');
+const UPS=[
+ {k:'icon',n:'Szczęście Ikon',max:8,base:600,g:1.5,d:'Szansa, że w paczce trafi się Ikona.',fx:l=>f2(UPFX.icon(l))+'% paczki (1 na '+Math.round(1/UPFX.icon(l))+')'},
+ {k:'toty',n:'Szczęście TOTY',max:8,base:500,g:1.5,d:'Szansa, że w paczce trafi się karta TOTY.',fx:l=>f2(UPFX.toty(l))+'% paczki (1 na '+Math.round(1/UPFX.toty(l))+')'},
+ {k:'rare',n:'Lepsze karty',max:8,base:400,g:1.45,d:'Szansa na kartę Rare w każdym slocie paczki.',fx:l=>{const w=UPFX.rare(l);return (w/(86+w)*100).toFixed(1).replace('.',',')+'% kart';}},
+ {k:'mut',n:'Mutacje',max:6,base:350,g:1.5,d:'Szansa na mutację karty.',fx:l=>(UPFX.mut(l)*100).toFixed(1).replace('.',',')+'% kart'},
+ {k:'coin',n:'Zarobki',max:10,base:350,g:1.45,d:'Więcej monet za mecze, ligę i puchar.',fx:l=>'×'+UPFX.coin(l).toFixed(2).replace('.',',')},
+ {k:'start',n:'Zapas rerolli',max:3,base:1500,g:2.4,d:'Na start każdego draftu masz co najmniej tyle rerolli roku.',fx:l=>l?'min. '+l+' na start draftu':'brak'}
+];
+function upCost(u,l){return Math.round(u.base*Math.pow(u.g,l)/10)*10;}
+function upRow(u){
+  const l=upLv(u.k),maxed=l>=u.max,c=upCost(u,l);
+  return '<div class="q"><div><h3>'+u.n+' <span class="small mute">poz. '+l+'/'+u.max+'</span></h3><div class="small mute">'+u.d+'</div><div class="rw">'+u.fx(l)+(maxed?'':' → '+u.fx(l+1))+'</div></div><button class="btn" data-act="buyup" data-k="'+u.k+'"'+(maxed||(P.coins||0)<c?' disabled':'')+'>'+(maxed?'Maks.':c+' monet')+'</button><div class="prog"><i style="width:'+(l/u.max*100)+'%"></i></div></div>';
+}
+/* ----- sklep ----- */
+const SHOP=[{k:'year',n:'Reroll roku',c:200},{k:'all',n:'Reroll wszystkiego',c:450},{k:'shard',n:'Odłamek',c:60}];
+/* ----- portfel i okno ----- */
+function updateWallet(){
+  $('#tokYear').textContent=P.tok.year;$('#tokAll').textContent=P.tok.all;$('#tokShard').textContent=P.shards||0;
+  $('#tokCoin').textContent=P.coins||0;
+  document.querySelectorAll('[data-act="fast"]').forEach(x=>{x.textContent='Animacje: '+(FASTP?'krótkie':'pełne');});
+  document.querySelectorAll('[data-act="mute"]').forEach(x=>{x.textContent='Dźwięk: '+(MUTE?'wył.':'wł.');});
+  const b=$('#qBadge'),n=claimable();b.hidden=!n;b.textContent=n;
+  checkAch();
+}
+let MT='q';
+function qRow(q,v,cl,attrs){
+  const done=v>=q.t;v=Math.min(v,q.t);
+  return '<div class="q'+(cl?' claimed':'')+'"><div><h3>'+q.n+'</h3><div class="small mute">'+q.d+' · '+v+'/'+q.t+'</div><div class="rw">'+rwText(q.r)+'</div></div><button class="btn" '+attrs+(done&&!cl?'':' disabled')+'>'+(cl?'Odebrano':'Odbierz')+'</button><div class="prog"><i style="width:'+(v/q.t*100)+'%"></i></div></div>';
+}
+function modalBody(){
+  if(MT==='q'){
+    let h='';
+    [['d','Dzienne','Odświeżają się codziennie.'],['w','Tygodniowe','Odświeżają się w poniedziałek.']].forEach(x=>{
+      const o=per(x[0]);
+      h+='<h3 style="margin-top:14px">'+x[1]+'</h3><div class="small mute">'+x[2]+'</div>'+periodQuests(x[0]).map(q=>qRow(q,o.s[q.s]||0,!!o.c[q.id],'data-act="pclaim" data-p="'+x[0]+'" data-id="'+q.id+'"')).join('');
+      if(x[0]==='d'){const all=dailyAll(),got=!!o.c.bonus;h+='<div class="q'+(got?' claimed':'')+'"><div><h3>Komplet dnia</h3><div class="small mute">Odbierz wszystkie dzienne questy</div><div class="rw">'+rwText(DBONUS)+'</div></div><button class="btn" data-act="dbonus"'+(all&&!got?'':' disabled')+'>'+(got?'Odebrano':'Odbierz')+'</button></div>';}
+    });
+    h+='<h3 style="margin-top:18px">Stałe</h3><div class="small mute">Postęp liczy się ze wszystkich rozgrywek.</div>'+QUESTS.map(q=>qRow(q,P.stats[q.s]||0,!!P.claimed[q.id],'data-act="claim" data-id="'+q.id+'"')).join('');
+    return h;
+  }
+  if(MT==='a'){
+    const n=ACH.filter(a=>P.ach[a.id]).length;
+    return '<div class="small mute">Odblokowane: '+n+'/'+ACH.length+'</div><div class="ach">'+ACH.map(a=>'<div class="'+(P.ach[a.id]?'on':'')+'"><b>'+a.n+'</b><span class="small">'+a.d+'</span></div>').join('')+'</div>';
+  }
+  if(MT==='u'){
+    return '<div class="small mute">Ulepszenia kosztują dużo i podnoszą szanse tylko trochę. Nie działają w wyzwaniu dnia. Masz: <b style="color:var(--gold)">'+(P.coins||0)+'</b> monet.</div>'+UPS.map(upRow).join('')+'<div class="row" style="margin-top:14px"><button class="btn" data-act="mtab" data-t="s">Sklep z rerollami</button></div>';
+  }
+  if(MT==='s'){
+    return '<div class="small mute">Monety zdobywasz za mecze, serie, czyste konta, awanse, ligę i tytuły. Masz: <b style="color:var(--gold)">'+(P.coins||0)+'</b></div>'+SHOP.map(i=>'<div class="q"><div><h3>'+i.n+'</h3><div class="rw">'+i.c+' monet</div></div><button class="btn" data-act="buy" data-k="'+i.k+'"'+((P.coins||0)>=i.c?'':' disabled')+'>Kup</button></div>').join('');
+  }
+  const H=P.hist||[];
+  if(!H.length)return '<p class="mute">Tu pojawią się twoje ostatnie składy po zakończeniu runu.</p>';
+  return H.map(e=>'<details class="hd"><summary><b>'+e.t+'</b> · '+(e.daily?'wyzwanie dnia':e.mode==='league'?'liga':'turniej')+' · '+e.f+' · '+e.ovr+' OVR · '+esc(e.res)+'</summary><div class="lineup">'+e.sq.map(p=>'<div><span>'+p.pos+'</span><span>'+esc(p.n)+' <span class="small mute">'+p.c+' '+p.y+'</span></span><b>'+p.o+'</b></div>').join('')+'</div></details>').join('');
+}
+function openModal(t){
+  if(t)MT=t;
+  const m=$('#modal'),tabs=[['q','Questy'],['u','Ulepszenia'],['a','Osiągnięcia'],['s','Sklep'],['h','Historia']];
+  m.innerHTML='<div><div class="row" style="justify-content:space-between"><h2>'+tabs.find(x=>x[0]===MT)[1]+'</h2><button class="btn" data-act="closeq">Zamknij</button></div><div style="margin-top:10px">'+modalBody()+'</div></div>';
+  m.hidden=false;
+}
+/* ----- akcje ----- */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el||el.disabled||window._noClick)return;
+  const a=el.dataset.act;
+  if(a==='quests'){openModal('q');}
+  else if(a==='closeq'){$('#modal').hidden=true;}
+  else if(a==='mtab'){openModal(el.dataset.t);}
+  else if(a==='claim'){
+    const q=QUESTS.find(x=>x.id===el.dataset.id);
+    if(q&&!P.claimed[q.id]&&(P.stats[q.s]||0)>=q.t){P.claimed[q.id]=1;giveReward(q.r);sfx('claim');toast('Odebrano: '+rwText(q.r));updateWallet();save();openModal();}
+  }else if(a==='pclaim'){
+    const p=el.dataset.p,o=per(p),q=(p==='d'?DQ:WQ).find(x=>x.id===el.dataset.id);
+    if(q&&!o.c[q.id]&&(o.s[q.s]||0)>=q.t){o.c[q.id]=1;giveReward(q.r);sfx('claim');toast('Odebrano: '+rwText(q.r));updateWallet();save();openModal();}
+  }else if(a==='dbonus'){const o=per('d');if(dailyAll()&&!o.c.bonus){o.c.bonus=1;giveReward(DBONUS);sfx('claim');toast('Komplet dnia: '+rwText(DBONUS));updateWallet();save();openModal();}
+  }else if(a==='ups'){openModal('u');
+  }else if(a==='buyup'){
+    const u=UPS.find(x=>x.k===el.dataset.k),l=u?upLv(u.k):0,c=u?upCost(u,l):0;
+    if(u&&l<u.max&&(P.coins||0)>=c){P.coins-=c;P.up[u.k]=l+1;sfx('claim');toast(u.n+': poziom '+(l+1));updateWallet();save();openModal();}
+  }else if(a==='buy'){
+    const it=SHOP.find(x=>x.k===el.dataset.k);
+    if(it&&(P.coins||0)>=it.c){
+      P.coins-=it.c;
+      if(it.k==='shard'){P.shards=(P.shards||0)+1;if(P.shards>=3){P.shards-=3;P.tok.year++;}}else P.tok[it.k]++;
+      sfx('claim');toast('Kupiono: '+it.n);updateWallet();save();openModal();
+    }
+  }else if(a==='menu-go'){MENU.step=el.dataset.s;MENU.wipe=false;render();window.scrollTo({top:0});}
+  else if(a==='pickmode'){P.pref.mode=el.dataset.v;MENU.step='form';render();window.scrollTo({top:0});}
+  else if(a==='wipe'){
+    if(!MENU.wipe){MENU.wipe=true;render();}
+    else{try{localStorage.removeItem(KEY);}catch(err){}P=JSON.parse(JSON.stringify(P0));S={view:'menu'};MENU.step='home';MENU.wipe=false;render();toast('Postęp usunięty.');}
+  }
+  else if(a==='setmode'){P.pref.mode=el.dataset.v;render();}
+  else if(a==='setdiff'){P.pref.diff=el.dataset.v;render();}
+  else if(a==='daily'){startDaily();render();}
+  else if(a==='share'){
+    const txt=S.end&&S.end.share||'';
+    const fb=()=>toast('Skopiuj tekst ręcznie.');
+    try{navigator.clipboard.writeText(txt).then(()=>toast('Skopiowano wynik.'),fb);}catch(err){fb();}
+  }
+});
+/* ===== v5: losowanie z animacją, efekty, konfetti, tryb szybki ===== */
+let FASTP=false;
+try{FASTP=localStorage.getItem('u11.fast')==='1';}catch(e){}
+const RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
+function FASTA(){return FASTP||RM.matches;}
+const REV=[];
+function rev(fn,ms){REV.push(setTimeout(fn,ms));}
+function clearRev(){REV.forEach(clearTimeout);REV.length=0;}
+/* flagi jako gradienty CSS */
+const FLAGS={
+ POL:'linear-gradient(#fff 50%,#dc143c 50%)',
+ BRA:'radial-gradient(circle,#1b3f94 0 22%,#ffdf00 24% 56%,#009c3b 58%)',
+ ARG:'linear-gradient(#74acdf 33%,#fff 33% 67%,#74acdf 67%)',
+ FRA:'linear-gradient(90deg,#0055a4 33%,#fff 33% 67%,#ef4135 67%)',
+ GER:'linear-gradient(#000 33%,#dd0000 33% 67%,#ffce00 67%)',
+ ESP:'linear-gradient(#aa151b 25%,#f1bf00 25% 75%,#aa151b 75%)',
+ ITA:'linear-gradient(90deg,#009246 33%,#fff 33% 67%,#ce2b37 67%)',
+ ENG:'linear-gradient(#ce1124,#ce1124) center/100% 24% no-repeat,linear-gradient(#ce1124,#ce1124) center/20% 100% no-repeat,#fff',
+ NED:'linear-gradient(#ae1c28 33%,#fff 33% 67%,#21468b 67%)',
+ POR:'linear-gradient(90deg,#046a38 40%,#da291c 40%)',
+ BEL:'linear-gradient(90deg,#000 33%,#fdda24 33% 67%,#ef3340 67%)',
+ CRO:'linear-gradient(#ff0000 33%,#fff 33% 67%,#171796 67%)',
+ URU:'repeating-linear-gradient(#fff 0 11.1%,#0038a8 11.1% 22.2%)',
+ COL:'linear-gradient(#fcd116 50%,#003893 50% 75%,#ce1126 75%)',
+ SWE:'linear-gradient(#fecb00,#fecb00) center/100% 20% no-repeat,linear-gradient(#fecb00,#fecb00) 30% center/20% 100% no-repeat,#006aa7',
+ DEN:'linear-gradient(#fff,#fff) center/100% 20% no-repeat,linear-gradient(#fff,#fff) 30% center/20% 100% no-repeat,#c8102e',
+ NOR:'linear-gradient(#002868,#002868) center/100% 10% no-repeat,linear-gradient(#002868,#002868) 30% center/10% 100% no-repeat,linear-gradient(#fff,#fff) center/100% 24% no-repeat,linear-gradient(#fff,#fff) 30% center/24% 100% no-repeat,#ba0c2f',
+ SUI:'linear-gradient(#fff,#fff) center/60% 20% no-repeat,linear-gradient(#fff,#fff) center/20% 60% no-repeat,#da291c',
+ TUR:'radial-gradient(circle at 42% 50%,#e30a17 0 18%,transparent 19%),radial-gradient(circle at 36% 50%,#fff 0 27%,transparent 28%),#e30a17',
+ SRB:'linear-gradient(#c6363c 33%,#0c4076 33% 67%,#fff 67%)',
+ CZE:'linear-gradient(60deg,#11457e 0 40%,transparent 41%),linear-gradient(#fff 50%,#d7141a 50%)',
+ MEX:'linear-gradient(90deg,#006847 33%,#fff 33% 67%,#ce1126 67%)',
+ JPN:'radial-gradient(circle,#bc002d 0 28%,#fff 30%)',
+ MAR:'radial-gradient(circle,transparent 0 18%,#006233 19% 27%,transparent 28%),#c1272d'
+};
+function flagHTML(c){return FLAGS[c]?'<i class="flag" style="background:'+FLAGS[c]+'"></i>':'';}
+const IH=56,HOT=new Set(['rare','toty','icon','wc','euro']);
+const reelItem=c=>'<div class="it">'+flagHTML(c)+esc(COUNTRIES[c])+'</div>';
+const yearItem=y=>'<div class="it">'+y+'</div>';
+/* losowanie: pity i różnorodność */
+function packOpts(extra){
+  if(S.daily)return Object.assign({},extra);
+  return Object.assign({up:P.up,avoidCountry:S.lastC},extra);
+}
+function notePack(p){if(p)S.lastC=p.country;}
+function reel(el,items,dur,every){
+  const n=items.length;el.innerHTML=items.join('');
+  try{
+    const a=el.animate([{transform:'translateY(0)'},{transform:'translateY(-'+((n-1)*IH)+'px)'}],{duration:dur,easing:'cubic-bezier(.1,.7,.1,1)',fill:'forwards'});
+    a.onfinish=()=>{try{a.cancel();}catch(e){}el.innerHTML=items[n-1];};
+  }catch(e){el.innerHTML=items[n-1];return;}
+  for(let k=1;k<n;k+=every)rev(()=>sfx('tick'),dur*(1-Math.pow(1-k/n,1/3.5)));
+}
+function spin(){
+  if(!S.fresh||!S.pack)return;
+  S.fresh=false;
+  const pk=S.pack;
+  if(FASTA())return;
+  const cs=$('#rcs'),ys=$('#rys'),cards=Array.prototype.slice.call(document.querySelectorAll('.pack .card'));
+  if(!cs||!ys)return;
+  sfx('pack');
+  const ci=[],yi=[];
+  for(let i=0;i<15;i++)ci.push(reelItem(pick(CODES)));ci.push(reelItem(pk.country));
+  for(let i=0;i<21;i++)yi.push(yearItem(MINY+rnd(MAXY-MINY+1)));yi.push(yearItem(pk.year));
+  reel(cs,ci,900,1);reel(ys,yi,1200,2);
+  cards.forEach((el,i)=>{
+    const c=pk.cards[i];if(!c)return;
+    rev(()=>{
+      sfx('flip',c.tier);
+      if(HOT.has(c.tier)){const g=document.createElement('span');g.className='glowring';el.appendChild(g);}
+      if(c.tier==='toty'||c.tier==='icon'){const r=el.getBoundingClientRect();confetti(r.left+r.width/2,r.top+r.height/2,c.tier==='icon'?40:22,8);}
+    },(1.2+i*.14)*1000+310);
+  });
+  const ic=pk.cards.findIndex(c=>c.tier==='icon');
+  if(ic>=0)rev(()=>walkout(pk.cards[ic]),(1.2+ic*.14)*1000+950);
+}
+/* liczniki */
+const LV={};
+function countUps(){
+  document.querySelectorAll('[data-cnt]').forEach(el=>{
+    const to=+el.dataset.cnt,k=el.dataset.key,from=LV[k]==null?0:LV[k];LV[k]=to;
+    if(FASTA()||from===to){el.textContent=to;return;}
+    const t0=performance.now(),d=600;
+    (function step(t){const p=Math.min(1,(t-t0)/d),e=1-Math.pow(1-p,3);el.textContent=Math.round(from+(to-from)*e);if(p<1)requestAnimationFrame(step);})(t0);
+  });
+}
+/* konfetti */
+const FX={p:[],raf:0};
+function confetti(x,y,n,spread){
+  if(FASTA())return;
+  const cv=$('#fx');if(!cv)return;
+  if(cv.width!==innerWidth||cv.height!==innerHeight){cv.width=innerWidth;cv.height=innerHeight;}
+  const cols=['#e9b949','#f4d878','#ffffff','#4fd18b','#ef6a5b','#6fb7ff'];
+  for(let i=0;i<n;i++)FX.p.push({x:x,y:y,vx:(Math.random()-.5)*spread*1.6,vy:-Math.random()*9-3,r:3+Math.random()*4,c:cols[Math.floor(Math.random()*cols.length)],rot:Math.random()*6,vr:(Math.random()-.5)*.4,life:70+Math.random()*60});
+  if(!FX.raf)FX.raf=requestAnimationFrame(fxStep);
+}
+function fxStep(){
+  const cv=$('#fx');if(!cv){FX.raf=0;return;}
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
+  FX.p=FX.p.filter(p=>p.life>0&&p.y<cv.height+20);
+  FX.p.forEach(p=>{p.vy+=.28;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.rot+=p.vr;p.life--;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.globalAlpha=Math.min(1,p.life/25);ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();});
+  if(FX.p.length)FX.raf=requestAnimationFrame(fxStep);else{FX.raf=0;ctx.clearRect(0,0,cv.width,cv.height);}
+}
+function goalFx(good){
+  const s=$('#sc');if(s){s.classList.remove('bump');void s.offsetWidth;s.classList.add('bump');}
+  const v=$('#vig');if(v){v.className='vig '+(good?'good':'bad')+' on';later(()=>{v.classList.remove('on');},900);}
+  const p=document.querySelector('.pitch');
+  if(p&&!FASTA()){p.classList.remove('shake');void p.offsetWidth;p.classList.add('shake');}
+  if(good){const r=(p||document.body).getBoundingClientRect();confetti(r.left+r.width/2,r.top+r.height*.3,70,12);}
+}
+function endFx(){
+  if(S.view!=='end'||!(S.end&&S.end.champ)||FASTA())return;
+  [0,350,700,1100].forEach((d,i)=>rev(()=>confetti(innerWidth*(.2+.2*i),innerHeight*.45,70,14),d));
+  sfx('claim');
+}
+/* menu i koniec */
+const FAN=[{n:'Toni Kroos',pos:'CM',c:'GER',year:2016,ovr:90,tier:'gold',mut:'captain',g:'MID'},{n:'Zinedine Zidane',pos:'CAM',c:'FRA',year:2000,ovr:97,tier:'icon',mut:null,g:'MID'},{n:'Kylian Mbappé',pos:'ST',c:'FRA',year:2024,ovr:95,tier:'toty',mut:null,g:'FWD'}];
+function heroFan(){return '<div class="fan" aria-hidden="true">'+FAN.map((c,i)=>'<div class="card t-'+c.tier+' f'+(i+1)+'">'+inner(c,false)+'</div>').join('')+'</div>';}
+const TROPHY='<svg class="trophy" width="96" height="110" viewBox="0 0 96 110" aria-hidden="true"><path d="M24 8h48v30c0 18-11 30-24 30S24 56 24 38z" fill="#e9b949"/><path d="M24 14H8c0 20 8 30 20 32M72 14h16c0 20-8 30-20 32" fill="none" stroke="#e9b949" stroke-width="6"/><rect x="42" y="66" width="12" height="18" fill="#c9962b"/><rect x="26" y="84" width="44" height="12" rx="3" fill="#e9b949"/><rect x="20" y="96" width="56" height="10" rx="3" fill="#c9962b"/><path d="M34 14v22c0 10 5 17 12 20" fill="none" stroke="#fff6dc" stroke-width="4" stroke-linecap="round" opacity=".6"/></svg>';
+/* przechylanie kart myszką */
+document.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='mouse'||(DR&&DR.active))return;
+  const c=e.target.closest&&e.target.closest('.pack .card');
+  document.querySelectorAll('.pack .card.tl').forEach(x=>{if(x!==c){x.classList.remove('tl');x.style.removeProperty('--rx');x.style.removeProperty('--ry');}});
+  if(!c||FASTA())return;
+  const r=c.getBoundingClientRect(),px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;
+  c.classList.add('tl');c.style.setProperty('--ry',(px*16).toFixed(1)+'deg');c.style.setProperty('--rx',(-py*16).toFixed(1)+'deg');
+});
+/* przełącznik animacji */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act="fast"]');if(!el)return;
+  FASTP=!FASTP;try{localStorage.setItem('u11.fast',FASTP?'1':'0');}catch(err){}
+  updateWallet();toast(FASTP?'Animacje skrócone.':'Pełne animacje.');
+});
+/* ===== Rywale, mecz, questy, akcje ===== */
+const TARGET=[72,74,76,79,82,85];
+function genTeam(tt,exclude){
+  for(let t=0;t<500;t++){
+    const c=pick(CODES),y=MINY+rnd(MAXY-MINY+1);
+    const pool=PLAYERS.filter(p=>p.c===c&&p.from<=y&&y<=p.to);
+    if(pool.length<(t<300?7:3))continue;
+    const name=COUNTRIES[c]+' '+y;
+    if(exclude&&exclude.includes(name)&&t<450)continue;
+    const sorted=pool.slice().sort((x,z)=>baseOvr(z,y,false)-baseOvr(x,y,false));
+    const byG=g=>sorted.filter(p=>p.g===g);
+    const lu=[].concat(byG('GK').slice(0,1),byG('DEF').slice(0,4),byG('MID').slice(0,3),byG('FWD').slice(0,3));
+    const rest=sorted.filter(p=>!lu.includes(p));
+    while(lu.length<11&&rest.length)lu.push(rest.shift());
+    const avg=g=>{const a=lu.filter(p=>p.g===g).map(p=>baseOvr(p,y,false));return a.length?a.reduce((s,x)=>s+x,0)/a.length:null;};
+    const t0=tt+rnd(3)-1,ln=g=>{const base=t0+rnd(5)-2,r=avg(g);return r==null?base:Math.round(.75*base+.25*r);};
+    const o={gk:ln('GK'),def:ln('DEF'),mid:ln('MID'),att:ln('FWD')};
+    o.ovr=(o.gk+o.def*4+o.mid*3+o.att*3)/11;
+    o.name=name;o.c=c;
+    o.stars=sorted.slice(0,3).map(p=>p.n);
+    o.pool=pool.map(p=>p.n);
+    o.lineup=lu.map(p=>({n:p.n,pos:p.pos,ovr:baseOvr(p,y,false)}));
+    return o;
+  }
+}
+const DIFFO={easy:-4.5,normal:0,hard:2.5},DIFFN={easy:'Łatwy',normal:'Normalny',hard:'Legenda'},COINM={easy:.7,normal:1,hard:1.6};
+function adapt(){return S.daily?0:Math.max(-3,Math.min(4,(ratings(S.slots,false).ovr-83)*.5));}
+function oppTarget(stage){return TARGET[stage]+(DIFFO[S.diff||'normal']||0)+adapt();}
+function genOpp(stage){const f=()=>genTeam(oppTarget(stage));return S.daily?withRng(S.daily.seed+stage*104729+1,f):f();}
+function nextOpp(){return S.mode==='league'?S.league.teams[(1+((6+S.league.round)%7))-1]:genOpp(S.stage);}
+function isKO(){return S.mode!=='league'&&S.stage>=3;}
+function stageName(i){return S.mode==='league'?'Kolejka '+(i+1)+'/7':STAGES[i];}
+/* ----- akcje ----- */
+function gain(c){
+  const d={icons:c.tier==='icon'?1:0,totys:c.tier==='toty'?1:0,muts:c.mut?1:0,events:c.ev?1:0};
+  for(const k in d)addStat(k,d[k]);
+  return d;
+}
+function placeCard(i){
+  const card=S.pack&&S.sel!=null?S.pack.cards[S.sel]:null,slot=S.slots[i];
+  if(!card||!slot||slot.card||penalty(slot.pos,card)>=99)return false;
+  if(dupOf(card)){toast('Ten zawodnik już jest w składzie.');return false;}
+  const d=gain(card);S.last={pack:S.pack,slot:i,d};
+  slot.card=card;card.dup=false;sfx('place');S.lastPlaced=i;
+  if(S.slots.every(s=>s.card)){S.last=null;finishDraft();}else rollPack();
+  render();window.scrollTo({top:0,behavior:'smooth'});return true;
+}
+function finishDraft(){
+  const cc=countryCounts(S.slots);
+  addStat('drafts',1);if(Math.max.apply(null,Object.values(cc))>=5&&!P.stats.chem5)addStat('chem5',1);
+  const r=ratings(S.slots,false);P.best=Math.max(P.best,Math.round(r.ovr));
+  S.view='squad';S.stage=0;S.pts=0;S.hist=[];S.sel=null;S.pack=null;
+  if(S.mode==='league')S.league=makeLeague();
+  S.opp=nextOpp();S.ovr0=Math.round(r.ovr*10)/10;
+}
+function freshRun(f,o){
+  o=o||{};
+  S={view:'draft',formation:f,mode:o.mode||P.pref.mode||'cup',diff:o.daily?'normal':(o.diff||P.pref.diff||'normal'),daily:o.daily||null,rr:0,slots:FORMS[f].map(a=>({pos:a[0],x:a[1],y:a[2],card:null})),pack:null,sel:null,stage:0,pts:0,hist:[]};
+  if(S.daily)S.mode='cup';
+  else{const st=UPFX.start(upLv('start'));if(P.tok.year<st)P.tok.year=st;}
+  rollPack();
+}
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  if(window._noClick)return;
+  const a=el.dataset.act,i=+el.dataset.i;
+  const small=innerWidth<=820;
+  switch(a){
+    case'start':freshRun(el.dataset.f);break;
+    case'selcard':sfx('pick');S.sel=i;render();if(small){const p=$('.pitch');if(p)p.scrollIntoView({behavior:'smooth',block:'center'});}return;
+    case'place':placeCard(i);return;
+    case'auto':{const card=S.pack&&S.sel!=null?S.pack.cards[S.sel]:null;if(!card)return;const bi=bestSlot(card);if(bi>=0)placeCard(bi);return;}
+    case'dup':{
+      const card=S.pack&&S.sel!=null?S.pack.cards[S.sel]:null;if(!card||!dupOf(card))return;
+      S.pack.cards.splice(S.sel,1);S.sel=null;addStat('dups',1);P.shards=(P.shards||0)+1;
+      if(P.shards>=3){P.shards-=3;P.tok.year++;toast('3 odłamki: +1 reroll roku');sfx('claim');}else toast('Odłamki: '+P.shards+'/3');
+      if(!S.pack.cards.length){S.rr=(S.rr||0)+1;rollPack();}
+      break;
+    }
+    case'undo':{
+      if(S.daily){toast('W wyzwaniu dnia rerolle są wyłączone.');return;}
+      if(!S.last||P.tok.year<1||S.view!=='draft')return;
+      P.tok.year--;const L=S.last;S.slots[L.slot].card=null;
+      ['icons','totys','muts','events'].forEach(k=>{addStat(k,-(L.d[k]||0));});
+      S.pack=L.pack;S.sel=null;S.last=null;S.fresh=false;break;
+    }
+    case'mute':MUTE=!MUTE;try{localStorage.setItem('u11.mute',MUTE?'1':'0');}catch(e){}updateWallet();return;
+    case'tokyear':case'tokall':{
+      const k=a==='tokyear'?'year':'all';if(S.daily){toast('W wyzwaniu dnia rerolle są wyłączone.');return;}if(P.tok[k]<1||!S.pack)return;
+      const p=genPack(needNow(),packOpts(k==='year'?{country:S.pack.country,avoidYear:S.pack.year}:{}));
+      if(!p){toast('Brak innych lat dla tego kraju.');return;}
+      P.tok[k]--;S.pack=p;S.sel=null;S.fresh=true;notePack(p);break;
+    }
+    case'reset':
+      if(!S.confirmReset){S.confirmReset=true;render();setTimeout(()=>{if(S.confirmReset){S.confirmReset=false;render();}},3000);return;}
+      S={view:'menu'};break;
+    case'reset2':S={view:'menu'};break;
+    case'selslot':if(S.swap)return;S.swapSel=S.swapSel===i?null:i;break;
+    case'swapyear':case'swapall':{
+      const k=a==='swapyear'?'year':'all',slot=S.slots[S.swapSel];
+      if(S.daily){toast('W wyzwaniu dnia rerolle są wyłączone.');return;}
+      if(!slot||P.tok[k]<1)return;
+      const need=slot.pos==='GK'?{gk:true,field:false}:{gk:false,field:true};
+      const p=genPack(need,packOpts(k==='year'?{country:slot.card.c,avoidYear:slot.card.year}:{}));
+      if(!p){toast('Nie udało się wylosować paczki.');return;}
+      P.tok[k]--;S.swap={pack:p};break;
+    }
+    case'swappick':{const slot=S.slots[S.swapSel],c=S.swap.pack.cards[i];slot.card=c;gain(c);S.swap=null;S.swapSel=null;break;}
+    case'swapkeep':S.swap=null;break;
+    case'play':startMatch();return;
+    case'quick':startMatch();skipAll();return;
+    case'next':{
+      const n=S.pendingNext||'squad';S.pendingNext=null;
+      if(n==='squad')S.view='squad';else endRun(n);
+      break;
+    }
+    default:return;
+  }
+  render();
+});
+let LASTV=null;
+function render(){
+  clearRev();
+  const h={menu:viewMenu,draft:viewDraft,squad:viewSquad,match:viewMatch,end:viewEnd}[S.view]||viewMenu;
+  if(S.view!=='menu'){MENU.step='home';MENU.wipe=false;}
+  document.body.dataset.v=S.view;
+  const app=$('#app'),key=S.view+(S.view==='menu'?MENU.step:'');
+  app.innerHTML=h();
+  if(LASTV!==key){app.classList.remove('enter');void app.offsetWidth;app.classList.add('enter');LASTV=key;}
+  S.lastPlaced=null;
+  updateWallet();save();countUps();
+  if(S.view==='draft')spin();
+  if(S.view==='end')endFx();
+}
+load();
+if(S.pendingNext&&S.pendingNext!=='squad')endRun(S.pendingNext);
+S.pendingNext=null;
+if(S.view==='draft'&&!S.pack)rollPack();
+if(S.view==='squad'&&(!S.opp||!S.opp.lineup))S.opp=nextOpp();
+if((S.view==='squad'||S.view==='draft')&&!S.slots)S={view:'menu'};
+render();
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+}
+</script>
